@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentregistry.dev/schema/agent-manifest.json",
+  "title": "Agent Manifest",
+  "description": "Standardized format for AI agent discovery on Solana",
+  "type": "object",
+  "required": ["name", "capabilities", "pricing"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "maxLength": 64,
+      "description": "Display name of the agent"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "Brief description of what this agent does"
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 32
+      },
+      "maxItems": 8,
+      "minItems": 1,
+      "description": "Tags describing agent capabilities (e.g. trading, email, coding)"
+    },
+    "pricing": {
+      "type": "object",
+      "required": ["perTaskSOL"],
+      "properties": {
+        "perTaskSOL": {
+          "type": "number",
+          "minimum": 0.000000001,
+          "description": "Price per task in SOL"
+        }
+      }
+    },
+    "contact": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL or endpoint for contacting the agent"
+    },
+    "verifications": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["devnet", "mainnet", "audited", "community-verified"]
+      },
+      "description": "Verification badges"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semver version of the agent"
+    },
+    "runtime": {
+      "type": "object",
+      "properties": {
+        "framework": {
+          "type": "string",
+          "enum": ["elizaos", "langchain", "autogen", "custom"],
+          "description": "Agent framework used"
+        },
+        "endpoint": {
+          "type": "string",
+          "format": "uri",
+          "description": "Agent's API endpoint"
+        }
+      }
+    }
+  }
+}

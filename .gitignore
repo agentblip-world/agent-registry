@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+target/
+.anchor/
+.next/
+out/
+
+# Environment & secrets
+.env
+.env.*
+*.env
+!.env.example
+.hackathon-creds.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test
+coverage/
+.nyc_output/
+
+# Solana
+test-ledger/
+deploy/
+
+# Claude Flow
+.claude-flow/
+.swarm/
+.claude/
+
+# Misc
+*.log
+*.pid
