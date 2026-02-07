@@ -1,0 +1,308 @@
+{
+  "address": "4vmpwCEGczDTDnJm8WSUTNYui2WuVQuVNYCJQnUAtJAY",
+  "metadata": {
+    "name": "agent_registry",
+    "version": "0.1.0",
+    "spec": "0.1.0"
+  },
+  "instructions": [
+    {
+      "name": "registerAgent",
+      "discriminator": [135,157,66,195,2,113,175,30],
+      "accounts": [
+        { "name": "agentProfile", "writable": true },
+        { "name": "owner", "writable": true, "signer": true },
+        { "name": "systemProgram" }
+      ],
+      "args": [
+        { "name": "name", "type": "string" },
+        { "name": "capabilities", "type": { "vec": "string" } },
+        { "name": "pricingLamports", "type": "u64" },
+        { "name": "metadataUri", "type": "string" }
+      ]
+    },
+    {
+      "name": "updateAgent",
+      "discriminator": [85,2,178,9,119,139,102,164],
+      "accounts": [
+        { "name": "agentProfile", "writable": true },
+        { "name": "owner", "signer": true }
+      ],
+      "args": [
+        { "name": "name", "type": { "option": "string" } },
+        { "name": "capabilities", "type": { "option": { "vec": "string" } } },
+        { "name": "pricingLamports", "type": { "option": "u64" } },
+        { "name": "metadataUri", "type": { "option": "string" } }
+      ]
+    },
+    {
+      "name": "deactivateAgent",
+      "discriminator": [205,171,239,225,82,126,96,166],
+      "accounts": [
+        { "name": "agentProfile", "writable": true },
+        { "name": "owner", "signer": true }
+      ],
+      "args": []
+    },
+    {
+      "name": "activateAgent",
+      "discriminator": [252,139,87,21,195,152,29,217],
+      "accounts": [
+        { "name": "agentProfile", "writable": true },
+        { "name": "owner", "signer": true }
+      ],
+      "args": []
+    },
+    {
+      "name": "createTask",
+      "discriminator": [194,80,6,180,232,127,48,171],
+      "accounts": [
+        { "name": "taskEscrow", "writable": true },
+        { "name": "agentProfile" },
+        { "name": "client", "writable": true, "signer": true },
+        { "name": "systemProgram" }
+      ],
+      "args": [
+        { "name": "taskId", "type": "string" },
+        { "name": "amountLamports", "type": "u64" }
+      ]
+    },
+    {
+      "name": "acceptTask",
+      "discriminator": [222,196,79,165,120,30,38,120],
+      "accounts": [
+        { "name": "taskEscrow", "writable": true },
+        { "name": "agentProfile" },
+        { "name": "agentOwner", "signer": true }
+      ],
+      "args": []
+    },
+    {
+      "name": "completeTask",
+      "discriminator": [109,167,192,41,129,108,220,196],
+      "accounts": [
+        { "name": "taskEscrow", "writable": true },
+        { "name": "agentProfile", "writable": true },
+        { "name": "agentOwner", "writable": true, "signer": true }
+      ],
+      "args": []
+    },
+    {
+      "name": "rateAgent",
+      "discriminator": [62,30,240,125,81,120,134,78],
+      "accounts": [
+        { "name": "taskEscrow" },
+        { "name": "agentProfile", "writable": true },
+        { "name": "client", "signer": true }
+      ],
+      "args": [
+        { "name": "rating", "type": "u8" }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "AgentProfile",
+      "discriminator": [60,227,42,24,0,87,86,205]
+    },
+    {
+      "name": "TaskEscrow",
+      "discriminator": [209,72,197,54,17,55,3,187]
+    }
+  ],
+  "events": [
+    {
+      "name": "AgentRegistered",
+      "discriminator": [58,183,92,14,234,215,190,109]
+    },
+    {
+      "name": "AgentUpdated",
+      "discriminator": [41,52,132,2,161,148,129,170]
+    },
+    {
+      "name": "AgentDeactivated",
+      "discriminator": [87,216,61,216,21,138,183,21]
+    },
+    {
+      "name": "AgentActivated",
+      "discriminator": [111,154,131,222,107,60,18,226]
+    },
+    {
+      "name": "TaskCreated",
+      "discriminator": [215,227,78,4,126,4,194,94]
+    },
+    {
+      "name": "TaskAccepted",
+      "discriminator": [208,218,195,106,174,79,14,104]
+    },
+    {
+      "name": "TaskCompleted",
+      "discriminator": [85,61,75,123,55,164,119,24]
+    },
+    {
+      "name": "AgentRated",
+      "discriminator": [130,227,122,204,113,144,176,242]
+    }
+  ],
+  "errors": [
+    { "code": 6000, "name": "NameTooLong", "msg": "Name exceeds maximum length of 64 characters" },
+    { "code": 6001, "name": "TooManyCapabilities", "msg": "Too many capabilities (max 8)" },
+    { "code": 6002, "name": "CapabilityTooLong", "msg": "Capability name exceeds 32 characters" },
+    { "code": 6003, "name": "MetadataUriTooLong", "msg": "Metadata URI exceeds 200 characters" },
+    { "code": 6004, "name": "InvalidPricing", "msg": "Pricing must be greater than 0" },
+    { "code": 6005, "name": "InvalidTaskStatus", "msg": "Invalid task status for this operation" },
+    { "code": 6006, "name": "AgentNotActive", "msg": "Agent is not active" },
+    { "code": 6007, "name": "InvalidAmount", "msg": "Amount must be greater than 0" },
+    { "code": 6008, "name": "InvalidRating", "msg": "Rating must be between 1 and 5" },
+    { "code": 6009, "name": "Unauthorized", "msg": "Unauthorized: signer is not the owner" },
+    { "code": 6010, "name": "AgentMismatch", "msg": "Agent profile does not match escrow" },
+    { "code": 6011, "name": "TaskIdTooLong", "msg": "Task ID exceeds 64 characters" }
+  ],
+  "types": [
+    {
+      "name": "AgentProfile",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "owner", "type": "pubkey" },
+          { "name": "name", "type": "string" },
+          { "name": "capabilities", "type": { "vec": "string" } },
+          { "name": "pricingLamports", "type": "u64" },
+          { "name": "status", "type": { "defined": { "name": "AgentStatus" } } },
+          { "name": "reputationScore", "type": "u64" },
+          { "name": "tasksCompleted", "type": "u64" },
+          { "name": "totalRatings", "type": "u64" },
+          { "name": "ratingSum", "type": "u64" },
+          { "name": "metadataUri", "type": "string" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "TaskEscrow",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "client", "type": "pubkey" },
+          { "name": "agent", "type": "pubkey" },
+          { "name": "amount", "type": "u64" },
+          { "name": "status", "type": { "defined": { "name": "TaskStatus" } } },
+          { "name": "taskId", "type": "string" },
+          { "name": "createdAt", "type": "i64" },
+          { "name": "bump", "type": "u8" }
+        ]
+      }
+    },
+    {
+      "name": "AgentStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "Active" },
+          { "name": "Inactive" }
+        ]
+      }
+    },
+    {
+      "name": "TaskStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          { "name": "Funded" },
+          { "name": "InProgress" },
+          { "name": "Completed" },
+          { "name": "Disputed" }
+        ]
+      }
+    },
+    {
+      "name": "AgentRegistered",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "agent", "type": "pubkey" },
+          { "name": "owner", "type": "pubkey" },
+          { "name": "name", "type": "string" },
+          { "name": "capabilities", "type": { "vec": "string" } },
+          { "name": "pricingLamports", "type": "u64" },
+          { "name": "metadataUri", "type": "string" }
+        ]
+      }
+    },
+    {
+      "name": "AgentUpdated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "agent", "type": "pubkey" },
+          { "name": "owner", "type": "pubkey" }
+        ]
+      }
+    },
+    {
+      "name": "AgentDeactivated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "agent", "type": "pubkey" },
+          { "name": "owner", "type": "pubkey" }
+        ]
+      }
+    },
+    {
+      "name": "AgentActivated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "agent", "type": "pubkey" },
+          { "name": "owner", "type": "pubkey" }
+        ]
+      }
+    },
+    {
+      "name": "TaskCreated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "escrow", "type": "pubkey" },
+          { "name": "client", "type": "pubkey" },
+          { "name": "agent", "type": "pubkey" },
+          { "name": "taskId", "type": "string" },
+          { "name": "amount", "type": "u64" }
+        ]
+      }
+    },
+    {
+      "name": "TaskAccepted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "escrow", "type": "pubkey" },
+          { "name": "agent", "type": "pubkey" }
+        ]
+      }
+    },
+    {
+      "name": "TaskCompleted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "escrow", "type": "pubkey" },
+          { "name": "agent", "type": "pubkey" },
+          { "name": "amount", "type": "u64" }
+        ]
+      }
+    },
+    {
+      "name": "AgentRated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          { "name": "agent", "type": "pubkey" },
+          { "name": "rating", "type": "u8" },
+          { "name": "newReputation", "type": "u64" }
+        ]
+      }
+    }
+  ]
+}

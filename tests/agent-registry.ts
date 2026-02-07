@@ -1,13 +1,23 @@
-import * as anchor from "@coral-xyz/anchor";
-import { Program } from "@coral-xyz/anchor";
-import { PublicKey, Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import anchorPkg from "@coral-xyz/anchor";
+const { AnchorProvider, Program, BN, web3, setProvider } = anchorPkg;
+import { PublicKey, Keypair, LAMPORTS_PER_SOL, SystemProgram } from "@solana/web3.js";
 import { expect } from "chai";
+import { readFileSync } from "fs";
+import { fileURLToPath } from "url";
+import { dirname, resolve } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Load IDL manually to avoid workspace auto-detection issues
+const idlPath = resolve(__dirname, "../src/idl/agent_registry.json");
+const idl = JSON.parse(readFileSync(idlPath, "utf8"));
 
 describe("agent-registry", () => {
-  const provider = anchor.AnchorProvider.env();
-  anchor.setProvider(provider);
+  const provider = AnchorProvider.env();
+  setProvider(provider);
 
-  const program = anchor.workspace.AgentRegistry as Program;
+  const program = new Program(idl, provider);
   const owner = provider.wallet;
 
   let agentProfilePDA: PublicKey;
@@ -26,13 +36,13 @@ describe("agent-registry", () => {
         .registerAgent(
           "TestAgent",
           ["trading", "email", "coding"],
-          new anchor.BN(0.02 * LAMPORTS_PER_SOL), // 0.02 SOL per task
+          new BN(0.02 * LAMPORTS_PER_SOL), // 0.02 SOL per task
           "https://example.com/agent-metadata.json"
         )
         .accounts({
           agentProfile: agentProfilePDA,
           owner: owner.publicKey,
-          systemProgram: anchor.web3.SystemProgram.programId,
+          systemProgram: SystemProgram.programId,
         })
         .rpc();
 
@@ -68,11 +78,11 @@ describe("agent-registry", () => {
 
       try {
         await program.methods
-          .registerAgent(longName, ["test"], new anchor.BN(1000), "https://x.com")
+          .registerAgent(longName, ["test"], new BN(1000), "https://x.com")
           .accounts({
             agentProfile: pda,
             owner: newOwner.publicKey,
-            systemProgram: anchor.web3.SystemProgram.programId,
+            systemProgram: SystemProgram.programId,
           })
           .signers([newOwner])
           .rpc();
@@ -89,7 +99,7 @@ describe("agent-registry", () => {
         .updateAgent(
           "UpdatedAgent",
           null,
-          new anchor.BN(0.05 * LAMPORTS_PER_SOL),
+          new BN(0.05 * LAMPORTS_PER_SOL),
           null
         )
         .accounts({
@@ -158,7 +168,7 @@ describe("agent-registry", () => {
     });
 
     it("creates a task escrow", async () => {
-      const amount = new anchor.BN(0.05 * LAMPORTS_PER_SOL);
+      const amount = new BN(0.05 * LAMPORTS_PER_SOL);
 
       await program.methods
         .createTask(taskId, amount)
@@ -166,7 +176,7 @@ describe("agent-registry", () => {
           taskEscrow: escrowPDA,
           agentProfile: agentProfilePDA,
           client: client.publicKey,
-          systemProgram: anchor.web3.SystemProgram.programId,
+          systemProgram: SystemProgram.programId,
         })
         .signers([client])
         .rpc();
