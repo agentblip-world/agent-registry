@@ -7,6 +7,9 @@ skip-lint = false
 [programs.devnet]
 agent_registry = "4vmpwCEGczDTDnJm8WSUTNYui2WuVQuVNYCJQnUAtJAY"
 
+[programs.localnet]
+agent_registry = "4vmpwCEGczDTDnJm8WSUTNYui2WuVQuVNYCJQnUAtJAY"
+
 [registry]
 url = "https://api.apr.dev"
 
