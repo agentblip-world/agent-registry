@@ -36,11 +36,6 @@ coverage/
 test-ledger/
 deploy/
 
-# Claude Flow
-.claude-flow/
-.swarm/
-.claude/
-
 # Misc
 *.log
 *.pid

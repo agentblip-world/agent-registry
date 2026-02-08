@@ -21,4 +21,15 @@ export default defineConfig({
       buffer: "buffer",
     },
   },
+  build: {
+    sourcemap: true,
+  },
+  css: {
+    devSourcemap: true,
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      sourcemap: false,
+    },
+  },
 });

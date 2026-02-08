@@ -18,7 +18,7 @@ import {
 } from "./types";
 
 const PROGRAM_ID = new PublicKey(
-  process.env.PROGRAM_ID || "AgntReg1stryXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+  process.env.PROGRAM_ID || "4vmpwCEGczDTDnJm8WSUTNYui2WuVQuVNYCJQnUAtJAY"
 );
 
 // Approximate data sizes from the Rust program

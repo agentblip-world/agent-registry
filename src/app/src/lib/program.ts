@@ -21,12 +21,13 @@ function ixDiscriminator(name: string): Buffer {
   const crypto = globalThis.crypto;
   // We compute a simple sighash compatible with Anchor's namespace
   // For the web UI, we use a precomputed table
+  // Discriminators from the compiled Anchor IDL (first 8 bytes of sha256("global:<name>"))
   const DISCRIMINATORS: Record<string, number[]> = {
-    register_agent: [0x9e, 0x1e, 0x81, 0x2a, 0x5d, 0x39, 0x5c, 0x7a],
-    create_task: [0xe2, 0x29, 0x11, 0x86, 0xca, 0x41, 0xc4, 0x58],
-    accept_task: [0x41, 0x8a, 0x9c, 0x2e, 0x88, 0x7e, 0x50, 0x77],
-    complete_task: [0x5e, 0xb8, 0xc4, 0x76, 0xf7, 0xe5, 0x3b, 0x8a],
-    rate_agent: [0xab, 0xfa, 0x5c, 0x30, 0x07, 0x4a, 0xe6, 0xb9],
+    register_agent: [135, 157, 66, 195, 2, 113, 175, 30],
+    create_task: [194, 80, 6, 180, 232, 127, 48, 171],
+    accept_task: [222, 196, 79, 165, 120, 30, 38, 120],
+    complete_task: [109, 167, 192, 41, 129, 108, 220, 196],
+    rate_agent: [62, 30, 240, 125, 81, 120, 134, 78],
   };
 
   const disc = DISCRIMINATORS[name];
