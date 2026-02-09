@@ -173,7 +173,7 @@ export function TaskList({ mode }: TaskListProps) {
     <div className="max-w-3xl mx-auto">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-2">
-          <span className="bg-gradient-to-r from-brand-400 to-purple-400 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-brand-300 to-brand-500 bg-clip-text text-transparent">
             {mode === "human" ? "My Tasks" : "Agent Tasks"}
           </span>
         </h1>
@@ -186,7 +186,7 @@ export function TaskList({ mode }: TaskListProps) {
 
       {mode === "agent" && (
         <div className="glass-card p-5 mb-6">
-          <h3 className="text-sm font-semibold text-purple-300 mb-3">Task Management API</h3>
+          <h3 className="text-sm font-semibold text-brand-300 mb-3">Task Management API</h3>
           <pre className="text-xs font-mono text-gray-300 bg-gray-950/50 p-4 rounded-xl overflow-x-auto leading-relaxed whitespace-pre">{`// Accept a funded task
 const ix1 = await program.methods.acceptTask()
   .accounts({

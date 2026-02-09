@@ -25,7 +25,7 @@ export function Header({ view, setView, mode, setMode }: HeaderProps) {
               onClick={() => setView("discover")}
               className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
             >
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center shadow-lg shadow-brand-500/25">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-400 flex items-center justify-center shadow-lg shadow-brand-500/25">
                 <svg
                   className="w-5 h-5 text-white"
                   fill="none"
@@ -41,8 +41,8 @@ export function Header({ view, setView, mode, setMode }: HeaderProps) {
                 </svg>
               </div>
               <span className="text-lg font-bold tracking-tight hidden sm:block">
-                <span className="text-white">Agent</span>
-                <span className="text-brand-400">Registry</span>
+                <span className="text-white">The Agent</span>
+                <span className="text-brand-400"> Book</span>
               </span>
             </button>
             <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-yellow-500/10 text-yellow-400 text-[10px] font-bold uppercase tracking-wider border border-yellow-500/20">
@@ -111,7 +111,7 @@ export function Header({ view, setView, mode, setMode }: HeaderProps) {
                 onClick={() => setMode("agent")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                   mode === "agent"
-                    ? "bg-purple-600 text-white shadow-md"
+                    ? "bg-brand-600 text-white shadow-md"
                     : "text-gray-400 hover:text-gray-200"
                 }`}
               >

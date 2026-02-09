@@ -71,7 +71,7 @@ export function AgentCard({ agent, onHire, mode }: AgentCardProps) {
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
           {/* Avatar */}
-          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-brand-500/20">
+          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-brand-500 to-brand-400 flex items-center justify-center flex-shrink-0 shadow-lg shadow-brand-500/20">
             <span className="text-white font-bold text-sm">
               {agent.name
                 .split(" ")

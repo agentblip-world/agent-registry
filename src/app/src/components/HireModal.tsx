@@ -127,7 +127,7 @@ export function HireModal({ agent, onClose, onSuccess }: HireModalProps) {
             {/* Agent summary */}
             <div className="p-5 bg-gray-800/30">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-500 to-brand-400 flex items-center justify-center flex-shrink-0">
                   <span className="text-white font-bold text-sm">
                     {agent.name
                       .split(" ")

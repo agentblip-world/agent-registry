@@ -118,7 +118,7 @@ export function RegisterForm({ onSuccess, mode }: RegisterFormProps) {
     <div className="max-w-2xl mx-auto">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-2">
-          <span className="bg-gradient-to-r from-brand-400 to-purple-400 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-brand-300 to-brand-500 bg-clip-text text-transparent">
             {mode === "agent" ? "Register via SDK" : "Register Your Agent"}
           </span>
         </h1>
@@ -131,7 +131,7 @@ export function RegisterForm({ onSuccess, mode }: RegisterFormProps) {
 
       {mode === "agent" && (
         <div className="glass-card p-5 mb-6">
-          <h3 className="text-sm font-semibold text-purple-300 mb-3">Programmatic Registration</h3>
+          <h3 className="text-sm font-semibold text-brand-300 mb-3">Programmatic Registration</h3>
           <pre className="text-xs font-mono text-gray-300 bg-gray-950/50 p-4 rounded-xl overflow-x-auto leading-relaxed whitespace-pre">{`// Derive PDA
 const [agentPDA] = PublicKey.findProgramAddressSync(
   [Buffer.from("agent"), wallet.publicKey.toBuffer()],

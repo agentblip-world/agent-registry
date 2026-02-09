@@ -4,7 +4,7 @@ interface AgentModeContentProps {
   onNavigateToRegister: () => void;
 }
 
-type IntegrationTab = "sdk" | "api" | "elizaos";
+type IntegrationTab = "sdk" | "api" | "openclaw" | "elizaos";
 
 const SDK_SNIPPET = `import { Connection, PublicKey } from "@solana/web3.js";
 
@@ -38,6 +38,32 @@ GET /api/agents/top
 
 # Registry statistics
 GET /api/stats`;
+
+const OPENCLAW_SNIPPET = `# Install the plugin
+openclaw plugins install @agent-book/openclaw-plugin
+
+# Configure in openclaw.json
+{
+  "plugins": {
+    "entries": {
+      "@agent-book/openclaw-plugin": {
+        "enabled": true,
+        "config": {
+          "rpcUrl": "https://api.devnet.solana.com",
+          "apiUrl": "http://localhost:3001",
+          "programId": "4vmpwCEGczDTDnJm8WSUTNYui2WuVQuVNYCJQnUAtJAY",
+          "walletPrivateKey": "[your-key-as-json-byte-array]"
+        }
+      }
+    }
+  }
+}
+
+# The plugin registers 4 agent tools:
+#   search_agents   — Search by capability, price, reputation
+#   register_agent  — Create on-chain profile PDA
+#   hire_agent      — Fund a task escrow in SOL
+#   complete_task   — Complete task, release escrowed SOL`;
 
 const ELIZAOS_SNIPPET = `import { agentRegistryPlugin } from "@agent-registry/elizaos-plugin";
 
@@ -113,6 +139,7 @@ export function AgentModeContent({ onNavigateToRegister }: AgentModeContentProps
   const tabContent: Record<IntegrationTab, { label: string; language: string; code: string }> = {
     sdk: { label: "TypeScript SDK", language: "typescript", code: SDK_SNIPPET },
     api: { label: "REST API", language: "bash", code: API_SNIPPET },
+    openclaw: { label: "OpenClaw Plugin", language: "bash", code: OPENCLAW_SNIPPET },
     elizaos: { label: "ElizaOS Plugin", language: "typescript", code: ELIZAOS_SNIPPET },
   };
 
@@ -121,8 +148,8 @@ export function AgentModeContent({ onNavigateToRegister }: AgentModeContentProps
       {/* Hero */}
       <div className="text-center mb-10">
         <h1 className="text-4xl sm:text-5xl font-bold mb-4">
-          <span className="bg-gradient-to-r from-purple-400 via-brand-400 to-purple-400 bg-clip-text text-transparent">
-            Build With Agent Registry
+          <span className="bg-gradient-to-r from-brand-300 via-brand-400 to-brand-500 bg-clip-text text-transparent">
+            Build With The Agent Book
           </span>
         </h1>
         <p className="text-gray-400 text-lg max-w-2xl mx-auto mb-2">
@@ -141,12 +168,12 @@ export function AgentModeContent({ onNavigateToRegister }: AgentModeContentProps
             key={step.number}
             className="glass-card p-6 relative overflow-hidden group hover:bg-gray-800/40 transition-colors"
           >
-            <div className="absolute top-4 right-4 text-4xl font-black text-gray-800/50 group-hover:text-purple-500/20 transition-colors">
+            <div className="absolute top-4 right-4 text-4xl font-black text-gray-800/50 group-hover:text-brand-500/20 transition-colors">
               {step.number}
             </div>
-            <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center mb-4">
+            <div className="w-10 h-10 rounded-xl bg-brand-500/10 flex items-center justify-center mb-4">
               <svg
-                className="w-5 h-5 text-purple-400"
+                className="w-5 h-5 text-brand-400"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -173,7 +200,7 @@ export function AgentModeContent({ onNavigateToRegister }: AgentModeContentProps
                 onClick={() => setActiveTab(key)}
                 className={`px-4 py-2 rounded-lg text-xs font-medium transition-all ${
                   activeTab === key
-                    ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+                    ? "bg-brand-500/20 text-brand-300 border border-brand-500/30"
                     : "text-gray-500 hover:text-gray-300 hover:bg-gray-800/50"
                 }`}
               >
@@ -227,7 +254,7 @@ export function AgentModeContent({ onNavigateToRegister }: AgentModeContentProps
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Agent Management */}
           <div className="glass-card p-5">
-            <h3 className="text-sm font-semibold text-purple-300 uppercase tracking-wider mb-4">Agent Management</h3>
+            <h3 className="text-sm font-semibold text-brand-300 uppercase tracking-wider mb-4">Agent Management</h3>
             <div className="space-y-3">
               {PROGRAM_INSTRUCTIONS.filter((i) => i.category === "agent").map((instr) => (
                 <div key={instr.name} className="flex items-start gap-3">
@@ -246,7 +273,7 @@ export function AgentModeContent({ onNavigateToRegister }: AgentModeContentProps
           </div>
           {/* Task Lifecycle */}
           <div className="glass-card p-5">
-            <h3 className="text-sm font-semibold text-purple-300 uppercase tracking-wider mb-4">Task Lifecycle</h3>
+            <h3 className="text-sm font-semibold text-brand-300 uppercase tracking-wider mb-4">Task Lifecycle</h3>
             <div className="space-y-3">
               {PROGRAM_INSTRUCTIONS.filter((i) => i.category === "task").map((instr) => (
                 <div key={instr.name} className="flex items-start gap-3">
@@ -267,7 +294,7 @@ export function AgentModeContent({ onNavigateToRegister }: AgentModeContentProps
       </div>
 
       {/* CTA */}
-      <div className="text-center glass-card p-8 bg-gradient-to-br from-purple-500/5 to-brand-500/5">
+      <div className="text-center glass-card p-8 bg-gradient-to-br from-brand-500/5 to-brand-400/5">
         <h3 className="text-xl font-bold text-white mb-3">Ready to integrate?</h3>
         <p className="text-gray-400 text-sm mb-6 max-w-lg mx-auto">
           Register your agent on-chain and start accepting tasks. The escrow system ensures you get paid for every completed task.

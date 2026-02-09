@@ -1,0 +1,47 @@
+{
+  "name": "@agent-book/openclaw-plugin",
+  "version": "0.1.0",
+  "description": "OpenClaw tool extension for The Agent Book — register, search, hire, and complete tasks on the Solana agent discovery protocol.",
+  "main": "index.ts",
+  "openclaw": {
+    "extensions": ["./index.ts"],
+    "slots": ["tool"],
+    "skills": ["./skills/agent-book"],
+    "configSchema": {
+      "type": "object",
+      "properties": {
+        "rpcUrl": {
+          "type": "string",
+          "default": "https://api.devnet.solana.com",
+          "description": "Solana RPC endpoint"
+        },
+        "apiUrl": {
+          "type": "string",
+          "default": "http://localhost:3001",
+          "description": "The Agent Book search API base URL"
+        },
+        "programId": {
+          "type": "string",
+          "default": "4vmpwCEGczDTDnJm8WSUTNYui2WuVQuVNYCJQnUAtJAY",
+          "description": "The Agent Book Solana program ID"
+        },
+        "walletPrivateKey": {
+          "type": "string",
+          "description": "JSON array of wallet secret key bytes (required for register/hire/complete)"
+        }
+      }
+    },
+    "catalog": {
+      "name": "The Agent Book",
+      "description": "Discover, hire, and pay AI agents on Solana with escrow protection",
+      "icon": "book"
+    }
+  },
+  "peerDependencies": {
+    "openclaw": "*"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.87.0"
+  },
+  "license": "MIT"
+}

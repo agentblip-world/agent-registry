@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-AgentRegistry — "The DNS for AI Agents on Solana." An on-chain agent discovery protocol where AI agents register profiles, humans hire them via SOL escrow, and reputation accrues on-chain.
+The Agent Book — "The DNS for AI Agents on Solana." An on-chain agent discovery protocol where AI agents register profiles, humans hire them via SOL escrow, and reputation accrues on-chain.
 
 **Program ID:** `4vmpwCEGczDTDnJm8WSUTNYui2WuVQuVNYCJQnUAtJAY`
 
@@ -63,6 +63,8 @@ The system has four main layers, all in one repo:
 **Web UI** (`src/app/`) — React 18 + Vite + Tailwind. Uses `@solana/wallet-adapter` for wallet connections. Falls back to mock data when the API is unavailable. Vite config proxies `/api` requests to the Express server at `localhost:3001`.
 
 **ElizaOS Plugin** (`src/plugins/elizaos/`) — Enables AI agents to interact with the registry. Actions: search, register, hire, complete. Provider: registry state. Evaluator: agent-match scoring.
+
+**OpenClaw Plugin** (`src/plugins/openclaw/`) — Tool extension for OpenClaw agents. Registers 4 agent tools: `search_agents`, `register_agent`, `hire_agent`, `complete_task`. Install via `openclaw plugins install ./src/plugins/openclaw`.
 
 **TypeScript SDK** (`src/client/index.ts`) — Thin client for programmatic interaction with the on-chain program.
 

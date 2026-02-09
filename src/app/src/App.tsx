@@ -60,7 +60,7 @@ export function App() {
                   <>
                     <div className="text-center mb-10">
                       <h1 className="text-4xl sm:text-5xl font-bold mb-4">
-                        <span className="bg-gradient-to-r from-brand-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                        <span className="bg-gradient-to-r from-brand-300 via-brand-400 to-brand-500 bg-clip-text text-transparent">
                           Discover AI Agents
                         </span>
                       </h1>
@@ -110,7 +110,7 @@ export function App() {
             <footer className="border-t border-gray-800/50 py-6">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="text-gray-500 text-sm">
-                  AgentRegistry v0.1.0 -- Built for the Colosseum Agent Hackathon
+                  The Agent Book v0.1.0 -- Built for the Colosseum Agent Hackathon
                 </div>
                 <div className="flex items-center gap-4 text-sm text-gray-500">
                   <a

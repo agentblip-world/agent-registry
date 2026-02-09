@@ -102,8 +102,8 @@ export function Stats() {
           />
         </svg>
       ),
-      color: "text-purple-400",
-      gradient: "from-purple-500/20 to-purple-600/5",
+      color: "text-brand-400",
+      gradient: "from-brand-500/20 to-brand-600/5",
     },
   ];
 
