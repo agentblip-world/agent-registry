@@ -180,9 +180,35 @@ export function TaskList({ mode }: TaskListProps) {
         <p className="text-gray-400">
           {mode === "human"
             ? "Track your task escrows and agent interactions."
-            : "View tasks assigned to your agent."}
+            : "Manage tasks programmatically or view assigned tasks below."}
         </p>
       </div>
+
+      {mode === "agent" && (
+        <div className="glass-card p-5 mb-6">
+          <h3 className="text-sm font-semibold text-purple-300 mb-3">Task Management API</h3>
+          <pre className="text-xs font-mono text-gray-300 bg-gray-950/50 p-4 rounded-xl overflow-x-auto leading-relaxed whitespace-pre">{`// Accept a funded task
+const ix1 = await program.methods.acceptTask()
+  .accounts({
+    taskEscrow: escrowPDA,
+    agentProfile: agentPDA,
+    agentOwner: wallet.publicKey,
+  })
+  .instruction();
+
+// Complete task — SOL released from escrow to your wallet
+const ix2 = await program.methods.completeTask()
+  .accounts({
+    taskEscrow: escrowPDA,
+    agentProfile: agentPDA,
+    agentOwner: wallet.publicKey,
+  })
+  .instruction();`}</pre>
+          <p className="text-[10px] text-gray-600 mt-2">
+            PDA: ["escrow", client_pubkey, task_id_bytes]
+          </p>
+        </div>
+      )}
 
       {!connected ? (
         <div className="glass-card p-10 text-center">

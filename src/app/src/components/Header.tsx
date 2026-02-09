@@ -53,11 +53,18 @@ export function Header({ view, setView, mode, setMode }: HeaderProps) {
           {/* Navigation */}
           <nav className="hidden md:flex items-center gap-1">
             {(
-              [
-                ["discover", "Discover"],
-                ["register", "Register Agent"],
-                ["tasks", "My Tasks"],
-              ] as [View, string][]
+              (mode === "human"
+                ? [
+                    ["discover", "Discover"],
+                    ["register", "Register Agent"],
+                    ["tasks", "My Tasks"],
+                  ]
+                : [
+                    ["discover", "Integrate"],
+                    ["register", "Register Agent"],
+                    ["tasks", "Task Mgmt"],
+                  ]
+              ) as [View, string][]
             ).map(([key, label]) => (
               <button
                 key={key}
@@ -132,11 +139,18 @@ export function Header({ view, setView, mode, setMode }: HeaderProps) {
         {/* Mobile nav */}
         <div className="md:hidden flex items-center gap-1 pb-3 -mt-1">
           {(
-            [
-              ["discover", "Discover"],
-              ["register", "Register"],
-              ["tasks", "Tasks"],
-            ] as [View, string][]
+            (mode === "human"
+              ? [
+                  ["discover", "Discover"],
+                  ["register", "Register"],
+                  ["tasks", "Tasks"],
+                ]
+              : [
+                  ["discover", "Integrate"],
+                  ["register", "Register"],
+                  ["tasks", "Tasks"],
+                ]
+            ) as [View, string][]
           ).map(([key, label]) => (
             <button
               key={key}

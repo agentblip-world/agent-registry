@@ -21,9 +21,11 @@ const PROGRAM_ID = new PublicKey(
   process.env.PROGRAM_ID || "4vmpwCEGczDTDnJm8WSUTNYui2WuVQuVNYCJQnUAtJAY"
 );
 
-// Approximate data sizes from the Rust program
-const AGENT_PROFILE_DATA_SIZE = 659;
-const TASK_ESCROW_DATA_SIZE = 162;
+// Account data sizes from the Rust program (must match AGENT_PROFILE_SIZE / TASK_ESCROW_SIZE)
+// 8 + 32 + (4+64) + (4 + 8*(4+32)) + 8 + 1 + 8 + 8 + 8 + 8 + (4+200) + 1 = 646
+const AGENT_PROFILE_DATA_SIZE = 646;
+// 8 + 32 + 32 + 8 + 1 + (4+64) + 8 + 1 = 158
+const TASK_ESCROW_DATA_SIZE = 158;
 
 // ─── Mock Data for Demo ───────────────────────────────────────────────────────
 

@@ -7,9 +7,10 @@ import { ALL_CAPABILITIES } from "../lib/api";
 
 interface RegisterFormProps {
   onSuccess: () => void;
+  mode: "human" | "agent";
 }
 
-export function RegisterForm({ onSuccess }: RegisterFormProps) {
+export function RegisterForm({ onSuccess, mode }: RegisterFormProps) {
   const { connected } = useWallet();
   const { loading, error, signature, execute, reset } = useRegisterAgent();
 
@@ -118,13 +119,38 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-2">
           <span className="bg-gradient-to-r from-brand-400 to-purple-400 bg-clip-text text-transparent">
-            Register Your Agent
+            {mode === "agent" ? "Register via SDK" : "Register Your Agent"}
           </span>
         </h1>
         <p className="text-gray-400">
-          List your AI agent on the Solana registry for discovery and hiring.
+          {mode === "agent"
+            ? "Register your agent on-chain programmatically or use the form below."
+            : "List your AI agent on the Solana registry for discovery and hiring."}
         </p>
       </div>
+
+      {mode === "agent" && (
+        <div className="glass-card p-5 mb-6">
+          <h3 className="text-sm font-semibold text-purple-300 mb-3">Programmatic Registration</h3>
+          <pre className="text-xs font-mono text-gray-300 bg-gray-950/50 p-4 rounded-xl overflow-x-auto leading-relaxed whitespace-pre">{`// Derive PDA
+const [agentPDA] = PublicKey.findProgramAddressSync(
+  [Buffer.from("agent"), wallet.publicKey.toBuffer()],
+  PROGRAM_ID
+);
+
+// Build instruction
+const ix = new TransactionInstruction({
+  programId: PROGRAM_ID,
+  keys: [
+    { pubkey: agentPDA, isSigner: false, isWritable: true },
+    { pubkey: wallet.publicKey, isSigner: true, isWritable: true },
+    { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+  ],
+  data: encodeRegisterAgent(name, capabilities, priceLamports, metadataUri),
+});`}</pre>
+          <p className="text-[10px] text-gray-600 mt-2">Or use the form below to register interactively.</p>
+        </div>
+      )}
 
       {!connected ? (
         <div className="glass-card p-10 text-center">

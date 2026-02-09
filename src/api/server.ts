@@ -26,6 +26,9 @@ const ALLOWED_ORIGINS = [
   "http://localhost:5173",
   "https://agentregistry.io",
   "https://www.agentregistry.io",
+  "https://search-api.web3factory.tools",
+  "https://app-one-flax-45.vercel.app",
+  "https://app-ftchr7f9x-tawandas-projects-0ee6fc38.vercel.app",
 ];
 
 app.use(

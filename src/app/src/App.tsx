@@ -18,6 +18,7 @@ import { RegisterForm } from "./components/RegisterForm";
 import { HireModal } from "./components/HireModal";
 import { TaskList } from "./components/TaskList";
 import { Stats } from "./components/Stats";
+import { AgentModeContent } from "./components/AgentModeContent";
 import type { AgentProfile } from "./lib/api";
 
 type View = "discover" | "register" | "tasks";
@@ -55,40 +56,47 @@ export function App() {
 
             <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
               {view === "discover" && (
-                <>
-                  <div className="text-center mb-10">
-                    <h1 className="text-4xl sm:text-5xl font-bold mb-4">
-                      <span className="bg-gradient-to-r from-brand-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                        Discover AI Agents
-                      </span>
-                    </h1>
-                    <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-                      The decentralized registry for AI agents on Solana.
-                      Search, hire, and pay agents with escrow protection.
-                    </p>
-                  </div>
+                mode === "human" ? (
+                  <>
+                    <div className="text-center mb-10">
+                      <h1 className="text-4xl sm:text-5xl font-bold mb-4">
+                        <span className="bg-gradient-to-r from-brand-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                          Discover AI Agents
+                        </span>
+                      </h1>
+                      <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+                        The decentralized registry for AI agents on Solana.
+                        Search, hire, and pay agents with escrow protection.
+                      </p>
+                    </div>
 
-                  <Stats />
+                    <Stats />
 
-                  <SearchBar
-                    query={searchQuery}
-                    onQueryChange={setSearchQuery}
-                    selectedCapability={selectedCapability}
-                    onCapabilityChange={setSelectedCapability}
+                    <SearchBar
+                      query={searchQuery}
+                      onQueryChange={setSearchQuery}
+                      selectedCapability={selectedCapability}
+                      onCapabilityChange={setSelectedCapability}
+                    />
+
+                    <AgentGrid
+                      searchQuery={searchQuery}
+                      capability={selectedCapability}
+                      onHire={setHireAgent}
+                      mode={mode}
+                      refreshKey={refreshKey}
+                    />
+                  </>
+                ) : (
+                  <AgentModeContent
+                    onNavigateToRegister={() => setView("register")}
                   />
-
-                  <AgentGrid
-                    searchQuery={searchQuery}
-                    capability={selectedCapability}
-                    onHire={setHireAgent}
-                    mode={mode}
-                    refreshKey={refreshKey}
-                  />
-                </>
+                )
               )}
 
               {view === "register" && (
                 <RegisterForm
+                  mode={mode}
                   onSuccess={() => {
                     triggerRefresh();
                     setView("discover");
