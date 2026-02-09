@@ -4,14 +4,15 @@
 
 @layer base {
   /*
-   * Gray scale built from palette:
-   *   Platinum #DFDEDD (223 222 221)
-   *   Cadet    #9F9F9E (159 159 158)
-   *   Davy's   #4A4C4A ( 74  76  74)
-   * Extended to near-white / near-black, mirrored between modes.
+   * Palette anchors:
+   *   Gold     #FFD633 / Jonquil #EEC300 (brand)
+   *   Platinum #DFDEDD / Cadet #9F9F9E / Davy's #4A4C4A (neutrals)
+   *
+   * Light mode: "Yellow Pages" — warm gold backgrounds, dark text.
+   * Dark mode:  warm neutral grays anchored to Platinum/Cadet/Davy's.
    */
 
-  /* ---- Light mode (inverted: light bg, dark text) ---- */
+  /* ---- Light mode (Yellow Pages: gold bg, dark text) ---- */
   :root {
     --color-brand: 255 214 51;
     --color-on-brand: 30 31 30;
@@ -19,14 +20,14 @@
     --gray-50:  30 31 30;
     --gray-100: 52 54 52;
     --gray-200: 74 76 74;       /* Davy's #4A4C4A */
-    --gray-300: 102 104 102;
-    --gray-400: 131 132 131;
-    --gray-500: 159 159 158;    /* Cadet  #9F9F9E */
-    --gray-600: 181 180 179;
-    --gray-700: 202 201 200;
-    --gray-800: 223 222 221;    /* Platinum #DFDEDD */
-    --gray-900: 237 237 235;
-    --gray-950: 252 252 250;
+    --gray-300: 100 98 78;
+    --gray-400: 128 124 96;
+    --gray-500: 160 155 115;
+    --gray-600: 190 182 125;
+    --gray-700: 218 207 140;
+    --gray-800: 238 225 155;
+    --gray-900: 248 237 175;
+    --gray-950: 255 247 200;    /* warm yellow cream page bg */
   }
 
   /* ---- Dark mode (normal: dark bg, light text) ---- */
