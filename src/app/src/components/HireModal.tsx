@@ -63,7 +63,7 @@ export function HireModal({ agent, onClose, onSuccess }: HireModalProps) {
       <div className="glass-card max-w-lg w-full p-0 overflow-hidden animate-in">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-800/50">
-          <h2 className="text-lg font-bold text-white">Hire Agent</h2>
+          <h2 className="text-lg font-bold text-gray-50">Hire Agent</h2>
           <button
             onClick={onClose}
             className="p-1.5 rounded-lg hover:bg-gray-800 transition-colors text-gray-400 hover:text-gray-200"
@@ -102,7 +102,7 @@ export function HireModal({ agent, onClose, onSuccess }: HireModalProps) {
                 />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">
+            <h3 className="text-xl font-bold text-gray-50 mb-2">
               Task Created & Funded!
             </h3>
             <p className="text-gray-400 text-sm mb-3">
@@ -138,7 +138,7 @@ export function HireModal({ agent, onClose, onSuccess }: HireModalProps) {
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-base font-semibold text-white truncate">
+                  <h3 className="text-base font-semibold text-gray-50 truncate">
                     {agent.name}
                   </h3>
                   <p className="text-xs text-gray-500 font-mono">
@@ -146,7 +146,7 @@ export function HireModal({ agent, onClose, onSuccess }: HireModalProps) {
                   </p>
                 </div>
                 <div className="text-right flex-shrink-0">
-                  <div className="text-lg font-bold text-white">
+                  <div className="text-lg font-bold text-gray-50">
                     {suggestedSol} SOL
                   </div>
                   <p className="text-[10px] text-gray-500">suggested price</p>

@@ -120,7 +120,7 @@ export function Stats() {
               {item.label}
             </span>
           </div>
-          <div className="text-2xl font-bold text-white">{item.value}</div>
+          <div className="text-2xl font-bold text-gray-50">{item.value}</div>
         </div>
       ))}
     </div>

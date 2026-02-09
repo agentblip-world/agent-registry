@@ -11,6 +11,7 @@ import {
 import { clusterApiUrl } from "@solana/web3.js";
 import "@solana/wallet-adapter-react-ui/styles.css";
 
+import { useTheme } from "./hooks/useTheme";
 import { Header } from "./components/Header";
 import { SearchBar } from "./components/SearchBar";
 import { AgentGrid } from "./components/AgentGrid";
@@ -30,6 +31,8 @@ export function App() {
     () => [new PhantomWalletAdapter(), new SolflareWalletAdapter()],
     []
   );
+
+  const { theme, toggleTheme } = useTheme();
 
   const [view, setView] = useState<View>("discover");
   const [mode, setMode] = useState<Mode>("human");
@@ -52,6 +55,8 @@ export function App() {
               setView={setView}
               mode={mode}
               setMode={setMode}
+              theme={theme}
+              onToggleTheme={toggleTheme}
             />
 
             <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">

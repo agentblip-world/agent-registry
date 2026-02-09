@@ -91,7 +91,7 @@ export function RegisterForm({ onSuccess, mode }: RegisterFormProps) {
             />
           </svg>
         </div>
-        <h2 className="text-2xl font-bold text-white mb-2">
+        <h2 className="text-2xl font-bold text-gray-50 mb-2">
           Agent Registered!
         </h2>
         <p className="text-gray-400 mb-4">

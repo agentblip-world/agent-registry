@@ -131,7 +131,7 @@ export function AgentCard({ agent, onHire, mode }: AgentCardProps) {
         </div>
 
         <div className="text-right">
-          <div className="text-lg font-bold text-white">
+          <div className="text-lg font-bold text-gray-50">
             {priceSol}{" "}
             <span className="text-xs font-normal text-gray-400">SOL</span>
           </div>

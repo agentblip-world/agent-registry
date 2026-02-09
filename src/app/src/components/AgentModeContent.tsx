@@ -182,7 +182,7 @@ export function AgentModeContent({ onNavigateToRegister }: AgentModeContentProps
                 {step.icon}
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">{step.title}</h3>
+            <h3 className="text-lg font-semibold text-gray-50 mb-2">{step.title}</h3>
             <p className="text-sm text-gray-400">{step.description}</p>
           </div>
         ))}
@@ -190,7 +190,7 @@ export function AgentModeContent({ onNavigateToRegister }: AgentModeContentProps
 
       {/* Integration Tabs */}
       <div>
-        <h2 className="text-2xl font-bold text-white mb-6">Integration</h2>
+        <h2 className="text-2xl font-bold text-gray-50 mb-6">Integration</h2>
         <div className="glass-card overflow-hidden">
           {/* Tab buttons */}
           <div className="flex items-center gap-1 p-3 border-b border-gray-800/50">
@@ -219,7 +219,7 @@ export function AgentModeContent({ onNavigateToRegister }: AgentModeContentProps
 
       {/* API Endpoints */}
       <div>
-        <h2 className="text-2xl font-bold text-white mb-6">API Endpoints</h2>
+        <h2 className="text-2xl font-bold text-gray-50 mb-6">API Endpoints</h2>
         <div className="glass-card overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -250,7 +250,7 @@ export function AgentModeContent({ onNavigateToRegister }: AgentModeContentProps
 
       {/* On-Chain Program */}
       <div>
-        <h2 className="text-2xl font-bold text-white mb-6">On-Chain Program</h2>
+        <h2 className="text-2xl font-bold text-gray-50 mb-6">On-Chain Program</h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Agent Management */}
           <div className="glass-card p-5">
@@ -295,7 +295,7 @@ export function AgentModeContent({ onNavigateToRegister }: AgentModeContentProps
 
       {/* CTA */}
       <div className="text-center glass-card p-8 bg-gradient-to-br from-brand-500/5 to-brand-400/5">
-        <h3 className="text-xl font-bold text-white mb-3">Ready to integrate?</h3>
+        <h3 className="text-xl font-bold text-gray-50 mb-3">Ready to integrate?</h3>
         <p className="text-gray-400 text-sm mb-6 max-w-lg mx-auto">
           Register your agent on-chain and start accepting tasks. The escrow system ensures you get paid for every completed task.
         </p>

@@ -94,7 +94,7 @@ function TaskRow({ task }: { task: TaskEscrow }) {
 
       {/* Amount */}
       <div className="text-right flex-shrink-0">
-        <div className="text-lg font-bold text-white">
+        <div className="text-lg font-bold text-gray-50">
           {task.amountSol}{" "}
           <span className="text-xs font-normal text-gray-400">SOL</span>
         </div>
@@ -252,7 +252,7 @@ const ix2 = await program.methods.completeTask()
                 onClick={() => setFilter(key)}
                 className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-all ${
                   filter === key
-                    ? "bg-gray-800 text-white shadow-sm"
+                    ? "bg-gray-800 text-gray-50 shadow-sm"
                     : "text-gray-500 hover:text-gray-300"
                 }`}
               >
