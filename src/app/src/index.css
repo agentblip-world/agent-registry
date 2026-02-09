@@ -3,37 +3,45 @@
 @tailwind utilities;
 
 @layer base {
-  /* ---- Light mode (inverted gray scale) ---- */
+  /*
+   * Gray scale built from palette:
+   *   Platinum #DFDEDD (223 222 221)
+   *   Cadet    #9F9F9E (159 159 158)
+   *   Davy's   #4A4C4A ( 74  76  74)
+   * Extended to near-white / near-black, mirrored between modes.
+   */
+
+  /* ---- Light mode (inverted: light bg, dark text) ---- */
   :root {
     --color-brand: 255 214 51;
-    --color-on-brand: 3 7 18;
+    --color-on-brand: 30 31 30;
 
-    --gray-50:  3 7 18;
-    --gray-100: 17 24 39;
-    --gray-200: 31 41 55;
-    --gray-300: 55 65 81;
-    --gray-400: 75 85 99;
-    --gray-500: 107 114 128;
-    --gray-600: 156 163 175;
-    --gray-700: 209 213 219;
-    --gray-800: 229 231 235;
-    --gray-900: 243 244 246;
-    --gray-950: 249 250 251;
+    --gray-50:  30 31 30;
+    --gray-100: 52 54 52;
+    --gray-200: 74 76 74;       /* Davy's #4A4C4A */
+    --gray-300: 102 104 102;
+    --gray-400: 131 132 131;
+    --gray-500: 159 159 158;    /* Cadet  #9F9F9E */
+    --gray-600: 181 180 179;
+    --gray-700: 202 201 200;
+    --gray-800: 223 222 221;    /* Platinum #DFDEDD */
+    --gray-900: 237 237 235;
+    --gray-950: 252 252 250;
   }
 
-  /* ---- Dark mode (standard Tailwind gray) ---- */
+  /* ---- Dark mode (normal: dark bg, light text) ---- */
   .dark {
-    --gray-50:  249 250 251;
-    --gray-100: 243 244 246;
-    --gray-200: 229 231 235;
-    --gray-300: 209 213 219;
-    --gray-400: 156 163 175;
-    --gray-500: 107 114 128;
-    --gray-600: 75 85 99;
-    --gray-700: 55 65 81;
-    --gray-800: 31 41 55;
-    --gray-900: 17 24 39;
-    --gray-950: 3 7 18;
+    --gray-50:  252 252 250;
+    --gray-100: 237 237 235;
+    --gray-200: 223 222 221;    /* Platinum #DFDEDD */
+    --gray-300: 202 201 200;
+    --gray-400: 181 180 179;
+    --gray-500: 159 159 158;    /* Cadet  #9F9F9E */
+    --gray-600: 131 132 131;
+    --gray-700: 102 104 102;
+    --gray-800: 74 76 74;       /* Davy's #4A4C4A */
+    --gray-900: 52 54 52;
+    --gray-950: 30 31 30;
   }
 
   body {
@@ -249,17 +257,17 @@
 /* Force wallet adapter modal to always use dark palette */
 .wallet-adapter-modal-wrapper,
 .wallet-adapter-modal-wrapper * {
-  --gray-50:  249 250 251;
-  --gray-100: 243 244 246;
-  --gray-200: 229 231 235;
-  --gray-300: 209 213 219;
-  --gray-400: 156 163 175;
-  --gray-500: 107 114 128;
-  --gray-600: 75 85 99;
-  --gray-700: 55 65 81;
-  --gray-800: 31 41 55;
-  --gray-900: 17 24 39;
-  --gray-950: 3 7 18;
+  --gray-50:  252 252 250;
+  --gray-100: 237 237 235;
+  --gray-200: 223 222 221;
+  --gray-300: 202 201 200;
+  --gray-400: 181 180 179;
+  --gray-500: 159 159 158;
+  --gray-600: 131 132 131;
+  --gray-700: 102 104 102;
+  --gray-800: 74 76 74;
+  --gray-900: 52 54 52;
+  --gray-950: 30 31 30;
 }
 
 /* Safe area for mobile bottom sheet */
