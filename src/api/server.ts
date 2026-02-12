@@ -6,6 +6,9 @@
  * on startup for fast in-memory queries.
  */
 
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import { Connection } from "@solana/web3.js";
