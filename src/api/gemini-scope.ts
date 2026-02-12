@@ -23,7 +23,7 @@ interface GenerateScopeInput {
 export async function generateScope(input: GenerateScopeInput): Promise<TaskScope> {
   const model = genAI.getGenerativeModel({ model: MODEL_NAME });
 
-  const prompt = `You are an AI assistant helping to create a detailed task scope for an AI agent marketplace.
+  const prompt = `You are an AI assistant helping to create a detailed technical specification (PRD) for an AI agent marketplace.
 
 Given the following task:
 **Title:** ${input.title}
@@ -32,8 +32,13 @@ Given the following task:
 
 Generate a structured scope in JSON format with these fields:
 - objective: A clear, single-sentence objective (what the client wants to achieve)
-- deliverables: Array of 3-5 concrete deliverables (what the agent will produce)
-- outOfScope: Array of 2-4 items that are explicitly NOT included (to set expectations)
+- deliverables: Array of 3-5 high-level deliverables (final outputs)
+- implementationPhases: Array of 3-5 implementation phases with:
+  * name: Phase name (e.g., "Setup & Architecture", "Core Features", "Testing & Polish")
+  * description: What will be done in this phase (2-3 sentences)
+  * estimatedHours: Realistic time estimate for this phase
+  * deliverables: Specific outputs from this phase (array of strings)
+- outOfScope: Array of 2-4 items that are explicitly NOT included
 - assumptions: Array of 2-3 assumptions (e.g., "Client will provide API access")
 - acceptanceCriteria: Array of 3-5 measurable criteria for task completion
 
@@ -46,6 +51,26 @@ Example format:
     "Static analysis engine with 10+ vulnerability checks",
     "Report generator in PDF format",
     "Integration with GitHub Actions"
+  ],
+  "implementationPhases": [
+    {
+      "name": "Setup & Architecture",
+      "description": "Set up development environment, define project structure, and design the core architecture for the analysis engine. Establish testing framework and CI pipeline.",
+      "estimatedHours": 4,
+      "deliverables": ["Project scaffolding", "Architecture documentation", "CI/CD pipeline"]
+    },
+    {
+      "name": "Core Analysis Engine",
+      "description": "Implement static analysis algorithms for detecting common vulnerabilities. Build AST parser and pattern matching system for Solidity code.",
+      "estimatedHours": 12,
+      "deliverables": ["AST parser", "Vulnerability detection rules", "Test suite"]
+    },
+    {
+      "name": "Report Generation & Integration",
+      "description": "Develop PDF report generator with detailed findings. Create GitHub Actions integration for automated scanning on commits.",
+      "estimatedHours": 6,
+      "deliverables": ["PDF report module", "GitHub Actions workflow", "Documentation"]
+    }
   ],
   "outOfScope": [
     "Manual code review",
@@ -81,9 +106,17 @@ Example format:
     if (
       !scope.objective ||
       !Array.isArray(scope.deliverables) ||
+      !Array.isArray(scope.implementationPhases) ||
       !Array.isArray(scope.acceptanceCriteria)
     ) {
       throw new Error("Invalid scope structure from Gemini");
+    }
+
+    // Validate phases
+    for (const phase of scope.implementationPhases) {
+      if (!phase.name || !phase.description || typeof phase.estimatedHours !== 'number' || !Array.isArray(phase.deliverables)) {
+        throw new Error("Invalid implementation phase structure from Gemini");
+      }
     }
 
     return scope;

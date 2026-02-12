@@ -51,6 +51,12 @@ export function TaskCreationWizard({ agent, onClose, onViewTask }: TaskCreationW
   // Step 2: Scope
   const [objective, setObjective] = useState("");
   const [deliverables, setDeliverables] = useState<string[]>([""]);
+  const [implementationPhases, setImplementationPhases] = useState<Array<{
+    name: string;
+    description: string;
+    estimatedHours: number;
+    deliverables: string[];
+  }>>([]);
   const [outOfScope, setOutOfScope] = useState<string[]>([]);
   const [assumptions, setAssumptions] = useState<string[]>([]);
   const [acceptanceCriteria, setAcceptanceCriteria] = useState<string[]>([""]);
@@ -161,6 +167,7 @@ export function TaskCreationWizard({ agent, onClose, onViewTask }: TaskCreationW
         const { scope } = await generateScopeFromAI(wf.id);
         setObjective(scope.objective);
         setDeliverables(scope.deliverables);
+        setImplementationPhases(scope.implementationPhases || []);
         setOutOfScope(scope.outOfScope);
         setAssumptions(scope.assumptions);
         setAcceptanceCriteria(scope.acceptanceCriteria);
@@ -185,6 +192,7 @@ export function TaskCreationWizard({ agent, onClose, onViewTask }: TaskCreationW
       const { scope } = await generateScopeFromAI(workflow.id);
       setObjective(scope.objective);
       setDeliverables(scope.deliverables);
+      setImplementationPhases(scope.implementationPhases || []);
       setOutOfScope(scope.outOfScope);
       setAssumptions(scope.assumptions);
       setAcceptanceCriteria(scope.acceptanceCriteria);
@@ -203,6 +211,7 @@ export function TaskCreationWizard({ agent, onClose, onViewTask }: TaskCreationW
       const scope: TaskScope = {
         objective: objective.trim(),
         deliverables: deliverables.map((d) => d.trim()).filter(Boolean),
+        implementationPhases: implementationPhases,
         outOfScope: outOfScope.map((d) => d.trim()).filter(Boolean),
         assumptions: assumptions.map((d) => d.trim()).filter(Boolean),
         acceptanceCriteria: acceptanceCriteria.map((d) => d.trim()).filter(Boolean),
@@ -447,6 +456,44 @@ export function TaskCreationWizard({ agent, onClose, onViewTask }: TaskCreationW
                 max={5}
                 placeholder="e.g. Security audit report"
               />
+
+              {/* Implementation Phases */}
+              {implementationPhases.length > 0 && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Implementation Plan
+                    <span className="text-gray-600 ml-1 font-normal text-xs">(AI-generated phases)</span>
+                  </label>
+                  <div className="space-y-3">
+                    {implementationPhases.map((phase, idx) => (
+                      <div key={idx} className="p-3 rounded-xl bg-gray-800/40 border border-gray-700/50">
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <h4 className="font-semibold text-sm text-brand-300">
+                            Phase {idx + 1}: {phase.name}
+                          </h4>
+                          <span className="text-xs text-gray-500 whitespace-nowrap">
+                            ~{phase.estimatedHours}h
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-400 mb-2">{phase.description}</p>
+                        {phase.deliverables.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {phase.deliverables.map((d, i) => (
+                              <span key={i} className="inline-block px-2 py-0.5 rounded-md text-[10px] bg-brand-500/10 text-brand-400 border border-brand-500/20">
+                                {d}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-gray-600 mt-2">
+                    Total estimated: {implementationPhases.reduce((sum, p) => sum + p.estimatedHours, 0)} hours across {implementationPhases.length} phases
+                  </p>
+                </div>
+              )}
+
               <DynamicList
                 label="Out of Scope"
                 items={outOfScope}

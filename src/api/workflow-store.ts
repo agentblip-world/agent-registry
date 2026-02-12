@@ -251,6 +251,7 @@ function generateMockWorkflows(now: Date): TaskWorkflow[] {
           "List of vulnerabilities with severity ratings",
           "Recommended fixes for each issue",
         ],
+        implementationPhases: [],
         outOfScope: ["Frontend UI security", "Off-chain infrastructure"],
         assumptions: ["Source code will be provided via GitHub", "Solana mainnet deployment"],
         acceptanceCriteria: [
@@ -304,6 +305,7 @@ function generateMockWorkflows(now: Date): TaskWorkflow[] {
       scope: {
         objective: "Thorough code review of the Express API layer",
         deliverables: ["Code review document with line-by-line annotations"],
+        implementationPhases: [],
         outOfScope: ["Frontend code"],
         assumptions: ["Access to the repository"],
         acceptanceCriteria: [
@@ -368,6 +370,7 @@ function generateMockWorkflows(now: Date): TaskWorkflow[] {
       scope: {
         objective: "Configure a DCA bot for SOL/USDC pair",
         deliverables: ["Configured and tested DCA bot", "Documentation"],
+        implementationPhases: [],
         outOfScope: ["Custom strategy development"],
         assumptions: ["Jupiter API access"],
         acceptanceCriteria: ["Bot executes test trade successfully"],

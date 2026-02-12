@@ -104,6 +104,11 @@ export function workflowRoutes(store: WorkflowStore): Router {
       });
     }
 
+    // Ensure implementationPhases is at least an empty array if not provided
+    if (!scope.implementationPhases) {
+      scope.implementationPhases = [];
+    }
+
     const updated = store.update(wf.id, {
       scope,
       status: WorkflowStatus.ScopeReview,

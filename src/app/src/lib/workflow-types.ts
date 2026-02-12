@@ -17,9 +17,17 @@ export enum WorkflowStatus {
   Rated = "rated",
 }
 
+export interface ImplementationPhase {
+  name: string;
+  description: string;
+  estimatedHours: number;
+  deliverables: string[];
+}
+
 export interface TaskScope {
   objective: string;
   deliverables: string[];
+  implementationPhases: ImplementationPhase[];
   outOfScope: string[];
   assumptions: string[];
   acceptanceCriteria: string[];

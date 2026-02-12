@@ -215,6 +215,7 @@ function getMockWorkflows(): TaskWorkflow[] {
       scope: {
         objective: "Identify security vulnerabilities in the token swap program",
         deliverables: ["Full security audit report", "Vulnerability list with severity ratings", "Recommended fixes"],
+        implementationPhases: [],
         outOfScope: ["Frontend UI security"],
         assumptions: ["Source code via GitHub"],
         acceptanceCriteria: ["All critical/high vulnerabilities identified", "Each finding includes PoC"],
@@ -258,6 +259,7 @@ function getMockWorkflows(): TaskWorkflow[] {
       scope: {
         objective: "Thorough code review of the Express API layer",
         deliverables: ["Code review document"],
+        implementationPhases: [],
         outOfScope: ["Frontend code"],
         assumptions: ["Repository access"],
         acceptanceCriteria: ["All routes reviewed"],
@@ -305,6 +307,7 @@ function getMockWorkflows(): TaskWorkflow[] {
       scope: {
         objective: "Configure a DCA bot for SOL/USDC",
         deliverables: ["Configured DCA bot", "Documentation"],
+        implementationPhases: [],
         outOfScope: ["Custom strategy development"],
         assumptions: ["Jupiter API access"],
         acceptanceCriteria: ["Bot executes test trade successfully"],
@@ -376,6 +379,26 @@ function createMockScope(): TaskScope {
   return {
     objective: "Complete the requested task with high quality deliverables",
     deliverables: ["Primary deliverable", "Documentation", "Test results"],
+    implementationPhases: [
+      {
+        name: "Planning & Setup",
+        description: "Define requirements and set up development environment",
+        estimatedHours: 2,
+        deliverables: ["Project structure", "Environment configuration"]
+      },
+      {
+        name: "Core Implementation",
+        description: "Build main functionality and features",
+        estimatedHours: 6,
+        deliverables: ["Working prototype", "Unit tests"]
+      },
+      {
+        name: "Testing & Delivery",
+        description: "Final testing, bug fixes, and documentation",
+        estimatedHours: 3,
+        deliverables: ["Final deliverable", "Documentation"]
+      }
+    ],
     outOfScope: ["Items not in original brief"],
     assumptions: ["Client provides necessary access", "Standard business hours"],
     acceptanceCriteria: ["All deliverables meet quality standards", "Tests pass", "Documentation complete"],
