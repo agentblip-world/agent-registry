@@ -19,6 +19,7 @@ import {
   makeActivity,
 } from "../workflow-store";
 import { generateQuote } from "../workflow-pricing";
+import { generateScope } from "../gemini-scope";
 
 export function workflowRoutes(store: WorkflowStore): Router {
   const router = Router();
@@ -113,6 +114,34 @@ export function workflowRoutes(store: WorkflowStore): Router {
     });
 
     res.json(updated);
+  });
+
+  /** POST /api/workflows/:id/generate-scope — AI-generate scope from title/brief */
+  router.post("/:id/generate-scope", async (req: Request, res: Response) => {
+    const wf = store.get(req.params.id);
+    if (!wf) return res.status(404).json({ error: "Workflow not found" });
+
+    if (wf.status !== WorkflowStatus.Draft) {
+      return res.status(409).json({
+        error: `Cannot generate scope in status "${wf.status}" (must be Draft)`,
+      });
+    }
+
+    try {
+      const scope = await generateScope({
+        title: wf.title,
+        brief: wf.brief,
+        agentName: wf.agentName,
+      });
+
+      res.json({ scope });
+    } catch (err: any) {
+      console.error("Scope generation error:", err);
+      res.status(500).json({
+        error: "Scope generation failed",
+        message: err.message,
+      });
+    }
   });
 
   /** POST /api/workflows/:id/approve-scope — approve scope, generates quote (ScopeReview → QuoteReview) */

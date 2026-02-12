@@ -94,6 +94,10 @@ export async function fetchWorkflow(id: string): Promise<TaskWorkflow & { slaExp
   return safeFetch(`${API_BASE}/${id}`, mock);
 }
 
+export async function generateScopeFromAI(id: string): Promise<{ scope: TaskScope }> {
+  return safePost(`${API_BASE}/${id}/generate-scope`, {}, { scope: createMockScope() });
+}
+
 export async function submitScope(id: string, scope: TaskScope): Promise<TaskWorkflow> {
   return safePatch(`${API_BASE}/${id}/scope`, scope, getMockWorkflows()[0]);
 }
@@ -366,4 +370,14 @@ function getMockWorkflows(): TaskWorkflow[] {
       updatedAt: ts(30 * 60_000),
     },
   ];
+}
+
+function createMockScope(): TaskScope {
+  return {
+    objective: "Complete the requested task with high quality deliverables",
+    deliverables: ["Primary deliverable", "Documentation", "Test results"],
+    outOfScope: ["Items not in original brief"],
+    assumptions: ["Client provides necessary access", "Standard business hours"],
+    acceptanceCriteria: ["All deliverables meet quality standards", "Tests pass", "Documentation complete"],
+  };
 }

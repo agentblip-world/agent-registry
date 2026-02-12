@@ -8,6 +8,7 @@ import { lamportsToSol, truncatePubkey, getTaskEscrowPDA } from "../lib/program"
 import { WizardStepRail } from "./WizardStepRail";
 import {
   createWorkflow,
+  generateScopeFromAI,
   submitScope,
   approveScope,
   acceptQuote,
@@ -154,9 +155,41 @@ export function TaskCreationWizard({ agent, onClose, onViewTask }: TaskCreationW
         brief: brief.trim(),
       });
       setWorkflow(wf);
+
+      // Auto-generate scope from AI
+      try {
+        const { scope } = await generateScopeFromAI(wf.id);
+        setObjective(scope.objective);
+        setDeliverables(scope.deliverables);
+        setOutOfScope(scope.outOfScope);
+        setAssumptions(scope.assumptions);
+        setAcceptanceCriteria(scope.acceptanceCriteria);
+      } catch (aiErr: any) {
+        console.warn("AI scope generation failed, user will fill manually:", aiErr);
+        // Non-fatal — just let user fill manually
+      }
+
       setStep(1);
     } catch (err: any) {
       setError(err.message || "Failed to create workflow");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleRegenerateScope() {
+    if (!workflow) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const { scope } = await generateScopeFromAI(workflow.id);
+      setObjective(scope.objective);
+      setDeliverables(scope.deliverables);
+      setOutOfScope(scope.outOfScope);
+      setAssumptions(scope.assumptions);
+      setAcceptanceCriteria(scope.acceptanceCriteria);
+    } catch (err: any) {
+      setError(err.message || "Failed to regenerate scope");
     } finally {
       setBusy(false);
     }
@@ -377,6 +410,25 @@ export function TaskCreationWizard({ agent, onClose, onViewTask }: TaskCreationW
           {/* Step 1: Define Scope */}
           {step === 1 && (
             <div className="p-5 space-y-4">
+              {/* AI hint */}
+              <div className="flex items-start gap-2 p-3 rounded-xl bg-brand-500/5 border border-brand-500/10">
+                <svg className="w-4 h-4 text-brand-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+                </svg>
+                <div className="text-xs text-gray-400 flex-1">
+                  <p className="text-brand-300 font-medium mb-0.5">AI-Generated Scope</p>
+                  <p>Scope was auto-generated from your brief. Review and tweak as needed, or regenerate.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleRegenerateScope}
+                  disabled={busy}
+                  className="text-xs px-3 py-1 rounded-lg bg-brand-500/10 text-brand-400 hover:bg-brand-500/20 transition-colors disabled:opacity-50"
+                >
+                  {busy ? "..." : "Regenerate"}
+                </button>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">Objective</label>
                 <textarea
