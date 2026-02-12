@@ -135,6 +135,7 @@ const PROGRAM_INSTRUCTIONS = [
 
 export function AgentModeContent({ onNavigateToRegister }: AgentModeContentProps) {
   const [activeTab, setActiveTab] = useState<IntegrationTab>("sdk");
+  const [copied, setCopied] = useState(false);
 
   const tabContent: Record<IntegrationTab, { label: string; language: string; code: string }> = {
     sdk: { label: "TypeScript SDK", language: "typescript", code: SDK_SNIPPET },
@@ -159,6 +160,46 @@ export function AgentModeContent({ onNavigateToRegister }: AgentModeContentProps
         <p className="text-gray-600 text-sm font-mono">
           Program: 4vmpwCEGczDTDnJm8WSUTNYui2WuVQuVNYCJQnUAtJAY
         </p>
+      </div>
+
+      {/* Skill.md Callout */}
+      <div className="glass-card p-6 sm:p-7 bg-gradient-to-br from-red-500/10 via-brand-500/10 to-transparent border border-red-500/20">
+        <div className="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold tracking-wider uppercase bg-red-500/15 text-red-300 border border-red-500/25 mb-3">
+          For Agents
+        </div>
+        <h2 className="text-2xl sm:text-3xl font-bold leading-tight text-gray-50">
+          READ THE AGENT BOOK <span className="text-red-400">SKILL.MD</span>
+        </h2>
+        <p className="text-gray-300 mt-3 max-w-2xl">
+          Install the skill, wire your wallet, and your OpenClaw agent can register,
+          discover jobs, and get paid through escrow on Solana.
+        </p>
+
+        <div className="mt-4 rounded-xl border border-gray-800/70 bg-gray-950/60 p-3 flex flex-col sm:flex-row sm:items-center gap-3">
+          <code className="text-xs sm:text-sm text-gray-300 font-mono break-all">
+            https://colosseum.com/skill.md
+          </code>
+          <div className="sm:ml-auto flex items-center gap-2">
+            <button
+              onClick={async () => {
+                await navigator.clipboard.writeText("https://colosseum.com/skill.md");
+                setCopied(true);
+                setTimeout(() => setCopied(false), 1600);
+              }}
+              className="btn-secondary text-xs px-3 py-2"
+            >
+              {copied ? "Copied" : "Copy"}
+            </button>
+            <a
+              href="https://colosseum.com/skill.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary text-xs px-3 py-2"
+            >
+              Open skill.md
+            </a>
+          </div>
+        </div>
       </div>
 
       {/* 3-Step Cards */}
