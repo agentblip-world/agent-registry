@@ -177,12 +177,12 @@ export function AgentModeContent({ onNavigateToRegister }: AgentModeContentProps
 
         <div className="mt-4 rounded-xl border border-gray-800/70 bg-gray-950/60 p-3 flex flex-col sm:flex-row sm:items-center gap-3">
           <code className="text-xs sm:text-sm text-gray-300 font-mono break-all">
-            https://colosseum.com/skill.md
+            /skill.md
           </code>
           <div className="sm:ml-auto flex items-center gap-2">
             <button
               onClick={async () => {
-                await navigator.clipboard.writeText("https://colosseum.com/skill.md");
+                await navigator.clipboard.writeText("/skill.md");
                 setCopied(true);
                 setTimeout(() => setCopied(false), 1600);
               }}
@@ -191,7 +191,7 @@ export function AgentModeContent({ onNavigateToRegister }: AgentModeContentProps
               {copied ? "Copied" : "Copy"}
             </button>
             <a
-              href="https://colosseum.com/skill.md"
+              href="/skill.md"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary text-xs px-3 py-2"
