@@ -13,6 +13,8 @@ import { AgentIndexer } from "./indexer";
 import { agentRoutes } from "./routes/agents";
 import { taskRoutes } from "./routes/tasks";
 import { statsRoutes } from "./routes/stats";
+import { workflowRoutes } from "./routes/workflows";
+import { workflowStore } from "./workflow-store";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -45,7 +47,7 @@ app.use(
       }
       callback(new Error(`CORS: origin ${origin} not allowed`));
     },
-    methods: ["GET", "POST", "OPTIONS"],
+    methods: ["GET", "POST", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
@@ -88,6 +90,7 @@ app.get("/health", (_req: Request, res: Response) => {
 
 app.use("/api/agents", agentRoutes(indexer));
 app.use("/api/tasks", taskRoutes(connection));
+app.use("/api/workflows", workflowRoutes(workflowStore));
 app.use("/api", statsRoutes(indexer));
 
 // ─── 404 Handler ─────────────────────────────────────────────────────────────
@@ -106,6 +109,21 @@ app.use((_req: Request, res: Response) => {
       "GET /api/tasks/:escrowPubkey",
       "GET /api/stats",
       "GET /api/capabilities",
+      "POST /api/workflows",
+      "GET /api/workflows",
+      "GET /api/workflows/:id",
+      "PATCH /api/workflows/:id/scope",
+      "POST /api/workflows/:id/approve-scope",
+      "POST /api/workflows/:id/revise-scope",
+      "POST /api/workflows/:id/accept-quote",
+      "POST /api/workflows/:id/fund",
+      "POST /api/workflows/:id/cancel",
+      "POST /api/workflows/:id/submit",
+      "POST /api/workflows/:id/request-revision",
+      "POST /api/workflows/:id/accept",
+      "POST /api/workflows/:id/refund",
+      "POST /api/workflows/:id/extend-sla",
+      "POST /api/workflows/:id/rate",
     ],
   });
 });
@@ -134,6 +152,21 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 async function start(): Promise<void> {
   try {
     await indexer.start();
+    await workflowStore.init();
+
+    // Wire indexer task-status-change callback to auto-update workflow
+    indexer.onTaskStatusChange((escrowPubkey, onChainStatus) => {
+      const wf = workflowStore.getByEscrowPubkey(escrowPubkey);
+      if (!wf) return;
+      // Auto-advance: on-chain InProgress means agent accepted
+      if (onChainStatus === "in_progress" && wf.status === "awaiting_escrow") {
+        workflowStore.update(wf.id, {
+          status: "in_progress" as any,
+          slaStartedAt: new Date().toISOString(),
+        });
+        console.log(`[Workflow] Auto-advanced ${wf.id} to in_progress via on-chain event`);
+      }
+    });
 
     app.listen(PORT, () => {
       console.log(`AgentRegistry API running on port ${PORT}`);
@@ -148,6 +181,7 @@ async function start(): Promise<void> {
       console.log("  GET /api/tasks/:escrowPubkey");
       console.log("  GET /api/stats");
       console.log("  GET /api/capabilities");
+      console.log("  POST/GET /api/workflows (+ 12 sub-routes)");
     });
   } catch (err) {
     console.error("Failed to start server:", err);

@@ -36,6 +36,10 @@ coverage/
 test-ledger/
 deploy/
 
+# Workflow data (JSON persistence)
+data/
+
 # Misc
 *.log
 *.pid
+.vercel

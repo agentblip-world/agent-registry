@@ -16,13 +16,14 @@ import { Header } from "./components/Header";
 import { SearchBar } from "./components/SearchBar";
 import { AgentGrid } from "./components/AgentGrid";
 import { RegisterForm } from "./components/RegisterForm";
-import { HireModal } from "./components/HireModal";
+import { TaskCreationWizard } from "./components/TaskCreationWizard";
 import { TaskList } from "./components/TaskList";
+import { TaskDetail } from "./components/TaskDetail";
 import { Stats } from "./components/Stats";
 import { AgentModeContent } from "./components/AgentModeContent";
 import type { AgentProfile } from "./lib/api";
 
-type View = "discover" | "register" | "tasks";
+type View = "discover" | "register" | "tasks" | "task-detail";
 type Mode = "human" | "agent";
 
 export function App() {
@@ -38,11 +39,28 @@ export function App() {
   const [mode, setMode] = useState<Mode>("human");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCapability, setSelectedCapability] = useState<string | null>(null);
-  const [hireAgent, setHireAgent] = useState<AgentProfile | null>(null);
+  const [wizardAgent, setWizardAgent] = useState<AgentProfile | null>(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const triggerRefresh = useCallback(() => {
     setRefreshKey((k) => k + 1);
+  }, []);
+
+  const handleSelectTask = useCallback((workflowId: string) => {
+    setSelectedTaskId(workflowId);
+    setView("task-detail");
+  }, []);
+
+  const handleViewTask = useCallback((workflowId: string) => {
+    setWizardAgent(null);
+    setSelectedTaskId(workflowId);
+    setView("task-detail");
+  }, []);
+
+  const handleBackToTasks = useCallback(() => {
+    setSelectedTaskId(null);
+    setView("tasks");
   }, []);
 
   return (
@@ -51,8 +69,11 @@ export function App() {
         <WalletModalProvider>
           <div className="min-h-screen flex flex-col">
             <Header
-              view={view}
-              setView={setView}
+              view={view === "task-detail" ? "tasks" : view}
+              setView={(v) => {
+                setView(v as View);
+                setSelectedTaskId(null);
+              }}
               mode={mode}
               setMode={setMode}
             />
@@ -85,7 +106,7 @@ export function App() {
                     <AgentGrid
                       searchQuery={searchQuery}
                       capability={selectedCapability}
-                      onHire={setHireAgent}
+                      onHire={setWizardAgent}
                       mode={mode}
                       refreshKey={refreshKey}
                     />
@@ -107,7 +128,21 @@ export function App() {
                 />
               )}
 
-              {view === "tasks" && <TaskList mode={mode} />}
+              {view === "tasks" && (
+                <TaskList
+                  mode={mode}
+                  onSelectTask={handleSelectTask}
+                  refreshKey={refreshKey}
+                />
+              )}
+
+              {view === "task-detail" && selectedTaskId && (
+                <TaskDetail
+                  workflowId={selectedTaskId}
+                  mode={mode}
+                  onBack={handleBackToTasks}
+                />
+              )}
             </main>
 
             <footer className="border-t border-gray-800/50 py-6">
@@ -132,14 +167,14 @@ export function App() {
               </div>
             </footer>
 
-            {hireAgent && (
-              <HireModal
-                agent={hireAgent}
-                onClose={() => setHireAgent(null)}
-                onSuccess={() => {
-                  setHireAgent(null);
+            {wizardAgent && (
+              <TaskCreationWizard
+                agent={wizardAgent}
+                onClose={() => {
+                  setWizardAgent(null);
                   triggerRefresh();
                 }}
+                onViewTask={handleViewTask}
               />
             )}
           </div>
