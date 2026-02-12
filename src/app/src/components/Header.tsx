@@ -22,14 +22,12 @@ export function Header({ view, setView, mode, setMode }: HeaderProps) {
               onClick={() => setView("discover")}
               className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
             >
-              <div className="w-10 h-10 rounded-xl bg-brand-400 flex items-center justify-center shadow-lg shadow-brand-500/30 border border-brand-300/40">
-                <svg className="w-7 h-7 text-[#191919]" viewBox="0 0 48 48" fill="currentColor" aria-hidden="true">
-                  <rect x="4" y="4" width="40" height="40" rx="7" fill="none" stroke="currentColor" strokeWidth="3.5" />
-                  <path d="M17 13h14l-2 5H19z" />
-                  <path d="M23 18h2l-4.5 10h-4z" />
-                  <path d="M25 18h2l4.5 10h-4z" />
-                  <path d="M13 34c3-3 6-3 9 0h4c3-3 6-3 9 0" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-                </svg>
+              <div className="w-10 h-10 rounded-xl overflow-hidden bg-brand-400 shadow-lg shadow-brand-500/30 border border-brand-300/40">
+                <img
+                  src="/agentbook-logo.jpg"
+                  alt="The Agent Book logo"
+                  className="w-full h-full object-cover"
+                />
               </div>
               <span className="text-lg hidden sm:block leading-none">
                 <span className="text-brand-200 font-editorial text-2xl">The Agent</span>
