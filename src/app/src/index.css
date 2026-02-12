@@ -179,6 +179,7 @@
 /* -------- Modal overlay -------- */
 .wallet-adapter-modal {
   @apply !bg-black/60 !backdrop-blur-sm;
+  z-index: 9999 !important; /* Ensure wallet modal appears above all app modals */
 }
 
 /* Modal container — full-screen sheet on mobile */
