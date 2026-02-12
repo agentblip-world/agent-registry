@@ -32,7 +32,7 @@ export function App() {
     []
   );
 
-  const { theme, toggleTheme } = useTheme();
+  useTheme();
 
   const [view, setView] = useState<View>("discover");
   const [mode, setMode] = useState<Mode>("human");
@@ -55,8 +55,6 @@ export function App() {
               setView={setView}
               mode={mode}
               setMode={setMode}
-              theme={theme}
-              onToggleTheme={toggleTheme}
             />
 
             <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
