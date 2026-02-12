@@ -16,6 +16,12 @@ import {
   StatsResponse,
   IndexerEvent,
 } from "./types";
+import {
+  parseAgentProfile as sdkParseAgentProfile,
+  parseTaskEscrow as sdkParseTaskEscrow,
+  AgentStatus as SdkAgentStatus,
+  TaskStatus as SdkTaskStatus,
+} from "../client/accounts";
 
 const PROGRAM_ID = new PublicKey(
   process.env.PROGRAM_ID || "4vmpwCEGczDTDnJm8WSUTNYui2WuVQuVNYCJQnUAtJAY"
@@ -210,149 +216,52 @@ function generateMockTasks(): TaskEscrow[] {
   ];
 }
 
-// ─── Account Parser ───────────────────────────────────────────────────────────
+// ─── Account Parser (delegates to SDK, adds indexer-specific fields) ─────────
+
+const AGENT_STATUS_MAP: Record<SdkAgentStatus, AgentStatus> = {
+  [SdkAgentStatus.Active]: AgentStatus.Active,
+  [SdkAgentStatus.Inactive]: AgentStatus.Inactive,
+};
+
+const TASK_STATUS_MAP: Record<SdkTaskStatus, TaskStatus> = {
+  [SdkTaskStatus.Funded]: TaskStatus.Funded,
+  [SdkTaskStatus.InProgress]: TaskStatus.InProgress,
+  [SdkTaskStatus.Completed]: TaskStatus.Completed,
+  [SdkTaskStatus.Disputed]: TaskStatus.Disputed,
+};
 
 function parseAgentProfile(publicKey: string, data: Buffer): AgentProfile | null {
-  try {
-    // Skip 8-byte discriminator
-    let offset = 8;
-
-    if (data.length < offset + 32) return null;
-
-    // owner (32 bytes)
-    const owner = new PublicKey(data.subarray(offset, offset + 32)).toBase58();
-    offset += 32;
-
-    // name (4-byte length prefix + string)
-    if (data.length < offset + 4) return null;
-    const nameLen = data.readUInt32LE(offset);
-    offset += 4;
-    if (nameLen > 64 || data.length < offset + nameLen) return null;
-    const name = data.subarray(offset, offset + nameLen).toString("utf8");
-    offset += nameLen;
-
-    // capabilities (4-byte vec length + items)
-    if (data.length < offset + 4) return null;
-    const capsLen = data.readUInt32LE(offset);
-    offset += 4;
-    if (capsLen > 8) return null;
-    const capabilities: string[] = [];
-    for (let i = 0; i < capsLen; i++) {
-      if (data.length < offset + 4) return null;
-      const capLen = data.readUInt32LE(offset);
-      offset += 4;
-      if (capLen > 32 || data.length < offset + capLen) return null;
-      capabilities.push(data.subarray(offset, offset + capLen).toString("utf8"));
-      offset += capLen;
-    }
-
-    // pricing_lamports (u64)
-    if (data.length < offset + 8) return null;
-    const pricingLamports = Number(data.readBigUInt64LE(offset));
-    offset += 8;
-
-    // status (1 byte: 0=Active, 1=Inactive)
-    if (data.length < offset + 1) return null;
-    const statusByte = data.readUInt8(offset);
-    offset += 1;
-    const status = statusByte === 0 ? AgentStatus.Active : AgentStatus.Inactive;
-
-    // reputation_score (u64)
-    if (data.length < offset + 8) return null;
-    const reputationScore = Number(data.readBigUInt64LE(offset));
-    offset += 8;
-
-    // tasks_completed (u64)
-    if (data.length < offset + 8) return null;
-    const tasksCompleted = Number(data.readBigUInt64LE(offset));
-    offset += 8;
-
-    // total_ratings (u64)
-    if (data.length < offset + 8) return null;
-    const totalRatings = Number(data.readBigUInt64LE(offset));
-    offset += 8;
-
-    // rating_sum (u64)
-    if (data.length < offset + 8) return null;
-    const ratingSum = Number(data.readBigUInt64LE(offset));
-    offset += 8;
-
-    // metadata_uri (4-byte length prefix + string)
-    if (data.length < offset + 4) return null;
-    const uriLen = data.readUInt32LE(offset);
-    offset += 4;
-    if (uriLen > 200 || data.length < offset + uriLen) return null;
-    const metadataUri = data.subarray(offset, offset + uriLen).toString("utf8");
-
-    return {
-      publicKey,
-      owner,
-      name,
-      capabilities,
-      pricingLamports,
-      status,
-      reputationScore,
-      tasksCompleted,
-      totalRatings,
-      ratingSum,
-      metadataUri,
-      indexedAt: Date.now(),
-    };
-  } catch {
-    return null;
-  }
+  const parsed = sdkParseAgentProfile(data);
+  if (!parsed) return null;
+  return {
+    publicKey,
+    owner: parsed.owner.toBase58(),
+    name: parsed.name,
+    capabilities: parsed.capabilities,
+    pricingLamports: parsed.pricingLamports,
+    status: AGENT_STATUS_MAP[parsed.status],
+    reputationScore: parsed.reputationScore,
+    tasksCompleted: parsed.tasksCompleted,
+    totalRatings: parsed.totalRatings,
+    ratingSum: parsed.ratingSum,
+    metadataUri: parsed.metadataUri,
+    indexedAt: Date.now(),
+  };
 }
 
 function parseTaskEscrow(publicKey: string, data: Buffer): TaskEscrow | null {
-  try {
-    let offset = 8; // skip discriminator
-
-    if (data.length < offset + 32) return null;
-    const client = new PublicKey(data.subarray(offset, offset + 32)).toBase58();
-    offset += 32;
-
-    if (data.length < offset + 32) return null;
-    const agent = new PublicKey(data.subarray(offset, offset + 32)).toBase58();
-    offset += 32;
-
-    if (data.length < offset + 8) return null;
-    const amount = Number(data.readBigUInt64LE(offset));
-    offset += 8;
-
-    if (data.length < offset + 1) return null;
-    const statusByte = data.readUInt8(offset);
-    offset += 1;
-    const statusMap: Record<number, TaskStatus> = {
-      0: TaskStatus.Funded,
-      1: TaskStatus.InProgress,
-      2: TaskStatus.Completed,
-      3: TaskStatus.Disputed,
-    };
-    const status = statusMap[statusByte] ?? TaskStatus.Funded;
-
-    if (data.length < offset + 4) return null;
-    const taskIdLen = data.readUInt32LE(offset);
-    offset += 4;
-    if (taskIdLen > 64 || data.length < offset + taskIdLen) return null;
-    const taskId = data.subarray(offset, offset + taskIdLen).toString("utf8");
-    offset += taskIdLen;
-
-    if (data.length < offset + 8) return null;
-    const createdAt = Number(data.readBigInt64LE(offset));
-
-    return {
-      publicKey,
-      client,
-      agent,
-      amountLamports: amount,
-      amountSol: amount / 1e9,
-      status,
-      taskId,
-      createdAt: new Date(createdAt * 1000).toISOString(),
-    };
-  } catch {
-    return null;
-  }
+  const parsed = sdkParseTaskEscrow(data);
+  if (!parsed) return null;
+  return {
+    publicKey,
+    client: parsed.client.toBase58(),
+    agent: parsed.agent.toBase58(),
+    amountLamports: parsed.amount,
+    amountSol: parsed.amount / 1e9,
+    status: TASK_STATUS_MAP[parsed.status],
+    taskId: parsed.taskId,
+    createdAt: new Date(parsed.createdAt * 1000).toISOString(),
+  };
 }
 
 // ─── Indexer Class ────────────────────────────────────────────────────────────
@@ -366,6 +275,7 @@ export class AgentIndexer {
   private usingMockData = false;
   private eventLog: IndexerEvent[] = [];
   private readonly maxEventLog = 1000;
+  private taskStatusCallback: ((escrowPubkey: string, status: string) => void) | null = null;
 
   constructor(connection: Connection) {
     this.connection = connection;
@@ -507,6 +417,11 @@ export class AgentIndexer {
     return this.initialized;
   }
 
+  /** Register a callback for task status changes. */
+  onTaskStatusChange(cb: (escrowPubkey: string, status: string) => void): void {
+    this.taskStatusCallback = cb;
+  }
+
   /** Get recent events from the log. */
   getRecentEvents(limit = 50): IndexerEvent[] {
     return this.eventLog.slice(-limit);
@@ -643,6 +558,11 @@ export class AgentIndexer {
 
         if (!existing) {
           this.logEvent({ type: "TaskCreated", task, timestamp: Date.now() });
+        }
+
+        // Fire callback on status change
+        if (this.taskStatusCallback && existing && existing.status !== task.status) {
+          this.taskStatusCallback(pubkey, task.status);
         }
 
         this.usingMockData = false;

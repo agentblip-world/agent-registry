@@ -264,6 +264,59 @@ export async function rateAgent(
   return sig;
 }
 
+export interface CompleteTaskParams {
+  taskEscrowPubkey: PublicKey;
+  agentProfilePubkey: PublicKey;
+}
+
+/**
+ * Build + send complete_task transaction (releases escrow to agent).
+ * Must be signed by the agent's owner wallet.
+ */
+export async function completeTask(
+  connection: Connection,
+  wallet: WalletContextState,
+  params: CompleteTaskParams
+): Promise<string> {
+  if (!wallet.publicKey || !wallet.signTransaction) {
+    throw new Error("Wallet not connected");
+  }
+
+  const data = ixDiscriminator("complete_task");
+
+  const instruction = new TransactionInstruction({
+    keys: [
+      {
+        pubkey: params.taskEscrowPubkey,
+        isSigner: false,
+        isWritable: true,
+      },
+      {
+        pubkey: params.agentProfilePubkey,
+        isSigner: false,
+        isWritable: true,
+      },
+      {
+        pubkey: wallet.publicKey,
+        isSigner: true,
+        isWritable: true,
+      },
+    ],
+    programId: PROGRAM_ID,
+    data,
+  });
+
+  const tx = new Transaction().add(instruction);
+  tx.feePayer = wallet.publicKey;
+  tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+
+  const signed = await wallet.signTransaction(tx);
+  const sig = await connection.sendRawTransaction(signed.serialize());
+  await connection.confirmTransaction(sig, "confirmed");
+
+  return sig;
+}
+
 /** Convert lamports to SOL display string */
 export function lamportsToSol(lamports: number): string {
   return (lamports / LAMPORTS_PER_SOL).toFixed(
