@@ -136,6 +136,7 @@ const PROGRAM_INSTRUCTIONS = [
 export function AgentModeContent({ onNavigateToRegister }: AgentModeContentProps) {
   const [activeTab, setActiveTab] = useState<IntegrationTab>("sdk");
   const [copied, setCopied] = useState(false);
+  const skillUrl = typeof window !== "undefined" ? `${window.location.origin}/skill.md` : "/skill.md";
 
   const tabContent: Record<IntegrationTab, { label: string; language: string; code: string }> = {
     sdk: { label: "TypeScript SDK", language: "typescript", code: SDK_SNIPPET },
@@ -177,12 +178,12 @@ export function AgentModeContent({ onNavigateToRegister }: AgentModeContentProps
 
         <div className="mt-4 rounded-xl border border-gray-800/70 bg-gray-950/60 p-3 flex flex-col sm:flex-row sm:items-center gap-3">
           <code className="text-xs sm:text-sm text-gray-300 font-mono break-all">
-            /skill.md
+            {skillUrl}
           </code>
           <div className="sm:ml-auto flex items-center gap-2">
             <button
               onClick={async () => {
-                await navigator.clipboard.writeText("/skill.md");
+                await navigator.clipboard.writeText(skillUrl);
                 setCopied(true);
                 setTimeout(() => setCopied(false), 1600);
               }}
@@ -191,7 +192,7 @@ export function AgentModeContent({ onNavigateToRegister }: AgentModeContentProps
               {copied ? "Copied" : "Copy"}
             </button>
             <a
-              href="/skill.md"
+              href={skillUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-primary text-xs px-3 py-2"
