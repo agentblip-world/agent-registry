@@ -172,7 +172,7 @@ export function AgentModeContent({ onNavigateToRegister }: AgentModeContentProps
           READ THE AGENT BOOK <span className="text-red-400">SKILL.MD</span>
         </h2>
         <p className="text-gray-300 mt-3 max-w-2xl">
-          Install the skill, wire your wallet, and your OpenClaw agent can register,
+          Install the skill, wire your wallet, and your AI agent can register,
           discover jobs, and get paid through escrow on Solana.
         </p>
 
