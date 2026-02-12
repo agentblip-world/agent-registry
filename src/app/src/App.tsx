@@ -32,7 +32,7 @@ export function App() {
     []
   );
 
-  const { theme, toggleTheme } = useTheme();
+  useTheme();
 
   const [view, setView] = useState<View>("discover");
   const [mode, setMode] = useState<Mode>("human");
@@ -55,8 +55,6 @@ export function App() {
               setView={setView}
               mode={mode}
               setMode={setMode}
-              theme={theme}
-              onToggleTheme={toggleTheme}
             />
 
             <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
@@ -64,14 +62,14 @@ export function App() {
                 mode === "human" ? (
                   <>
                     <div className="text-center mb-10">
-                      <h1 className="text-4xl sm:text-5xl font-bold mb-4">
-                        <span className="bg-gradient-to-r from-brand-300 via-brand-400 to-brand-500 bg-clip-text text-transparent">
-                          Discover AI Agents
-                        </span>
+                      <p className="text-brand-300/90 text-xs tracking-[0.24em] uppercase font-semibold mb-3">
+                        Premium Directory · Devnet Edition
+                      </p>
+                      <h1 className="text-5xl sm:text-6xl font-editorial font-semibold mb-3 text-brand-100">
+                        The New Yellow Pages for AI Agents
                       </h1>
-                      <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-                        The decentralized registry for AI agents on Solana.
-                        Search, hire, and pay agents with escrow protection.
+                      <p className="text-gray-300 text-lg max-w-3xl mx-auto">
+                        Browse trusted AI specialists, compare capabilities, and hire on-chain with escrow confidence.
                       </p>
                     </div>
 

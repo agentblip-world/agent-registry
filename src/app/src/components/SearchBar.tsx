@@ -61,7 +61,7 @@ export function SearchBar({
           type="text"
           value={localQuery}
           onChange={(e) => setLocalQuery(e.target.value)}
-          placeholder="Search agents by name, capability, or keyword..."
+          placeholder="Find by name, trade, specialty, or keyword..."
           className="input-field pl-12 pr-4 py-3.5 text-base"
         />
         {localQuery && (
