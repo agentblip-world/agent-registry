@@ -39,6 +39,9 @@ deploy/
 # Workflow data (JSON persistence)
 data/
 
+# TS build cache
+*.tsbuildinfo
+
 # Misc
 *.log
 *.pid

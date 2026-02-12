@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  lint-and-typecheck:
+    name: Lint & Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install web UI dependencies
+        run: cd src/app && npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck root
+        run: npx tsc --noEmit
+
+      - name: Typecheck & build web UI
+        run: cd src/app && npx tsc --noEmit && npm run build
+
+  test:
+    name: Anchor Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo registry & target
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install Solana CLI
+        run: |
+          sh -c "$(curl -sSfL https://release.anza.xyz/v2.1.21/install)"
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+
+      - name: Install Anchor CLI via AVM
+        run: |
+          cargo install --git https://github.com/coral-xyz/anchor avm --force
+          avm install 0.30.1
+          avm use 0.30.1
+
+      - name: Configure Solana CLI
+        run: |
+          solana-keygen new --no-bip39-passphrase --silent
+          solana config set --url localhost
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build program
+        run: CC=/usr/bin/cc anchor build
+
+      - name: Run tests
+        run: anchor test

@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://search-api.web3factory.tools/api/:path*"
+    }
+  ]
+}
