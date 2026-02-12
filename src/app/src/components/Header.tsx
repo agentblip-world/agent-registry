@@ -72,12 +72,12 @@ export function Header({ view, setView, mode, setMode }: HeaderProps) {
           </nav>
 
           {/* Right side: Mode toggle + Wallet */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             {/* Human / Agent toggle */}
             <div className="flex items-center bg-gray-800/80 rounded-xl p-0.5 border border-gray-700/50">
               <button
                 onClick={() => setMode("human")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                   mode === "human"
                     ? "bg-brand-600 text-white shadow-md"
                     : "text-gray-400 hover:text-gray-200"
@@ -100,7 +100,7 @@ export function Header({ view, setView, mode, setMode }: HeaderProps) {
               </button>
               <button
                 onClick={() => setMode("agent")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                   mode === "agent"
                     ? "bg-brand-600 text-white shadow-md"
                     : "text-gray-400 hover:text-gray-200"
@@ -123,7 +123,7 @@ export function Header({ view, setView, mode, setMode }: HeaderProps) {
               </button>
             </div>
 
-            <WalletMultiButton />
+            <WalletMultiButton className="!whitespace-nowrap !px-3 sm:!px-5 !text-sm !h-10 !shrink-0" />
           </div>
         </div>
 

@@ -154,7 +154,7 @@
 /* Trigger button (header / inline) */
 .wallet-adapter-button {
   @apply !bg-gradient-to-r !from-brand-600 !to-brand-400
-         !rounded-xl !font-semibold !h-10 !px-5
+         !rounded-xl !font-semibold !h-10 !px-3 sm:!px-5 !text-sm !whitespace-nowrap
          hover:!from-brand-500 hover:!to-brand-300 !transition-all;
   color: rgb(var(--color-on-brand)) !important;
 }

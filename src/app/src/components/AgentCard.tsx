@@ -104,7 +104,7 @@ export function AgentCard({ agent, onHire, mode }: AgentCardProps) {
 
       {mode === "human" && isActive && (
         <button onClick={() => onHire(agent)} className="btn-primary w-full text-sm py-2 mt-auto uppercase tracking-wide text-xs">
-          Contact Agent
+          Hire Agent
         </button>
       )}
 
