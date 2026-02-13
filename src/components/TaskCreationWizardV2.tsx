@@ -130,13 +130,46 @@ export function TaskCreationWizardV2({ agent, onClose, onViewTask }: TaskCreatio
         ? questions.map(q => q.field_key)
         : questions.filter(q => !answers[q.field_key]).map(q => q.field_key);
 
-      // Submit clarifications
-      const result = await submitClarifications(draft.draft_id, answers, skippedKeys);
-      setDraft(result.draft);
-      setCurrentState(result.draft.current_state);
+      // Filter out internal budget keys from answers
+      const cleanAnswers: Record<string, any> = {};
+      for (const [key, val] of Object.entries(answers)) {
+        if (!key.startsWith('_budget')) cleanAnswers[key] = val;
+      }
 
-      // Auto-generate scope
-      await handleGenerateScope(draft.draft_id);
+      const budgetSol = parseFloat(answers["_budget_sol"]) || 0;
+      const budgetUsd = parseFloat(answers["_budget_usd"]) || 0;
+      const budget = budgetSol > 0 ? { amount: budgetSol, usd: budgetUsd } : null;
+
+      // Call clarify endpoint which generates scope + quote
+      const res = await fetch('/api/clarify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          answers: cleanAnswers,
+          skipped: skippedKeys,
+          title: draft.title,
+          brief: draft.brief,
+          extraction: draft.extraction_result,
+          budget,
+        }),
+      });
+
+      if (!res.ok) {
+        const contentType = res.headers.get("content-type");
+        if (contentType?.includes("text/html")) throw new Error("API not available");
+        const err = await res.json();
+        throw new Error(err.error || "Failed to generate scope");
+      }
+
+      const result = await res.json();
+      setDraft((prev: any) => ({
+        ...prev,
+        current_state: 'QUOTE_READY',
+        scope_structured: result.scope,
+        pricing_result: result.quote,
+      }));
+      setCurrentState('QUOTE_READY');
+      setCurrentStep(2);
     } catch (err: any) {
       setError(err.message || "Failed to submit clarifications");
     } finally {
@@ -425,14 +458,56 @@ export function TaskCreationWizardV2({ agent, onClose, onViewTask }: TaskCreatio
                 </div>
               ))}
 
+              {/* Budget Field */}
+              <div className="glass-card p-4">
+                <label className="block text-sm font-medium text-gray-200 mb-2">
+                  💰 Budget (optional)
+                  <span className="ml-1 text-xs px-1.5 py-0.5 rounded bg-brand-500/20 text-brand-300">Helps us tailor the scope</span>
+                </label>
+                <div className="flex gap-3 items-center">
+                  <div className="flex-1 relative">
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={answers["_budget_sol"] || ""}
+                      onChange={(e) => {
+                        const sol = parseFloat(e.target.value) || 0;
+                        setAnswers({ ...answers, _budget_sol: e.target.value, _budget_usd: (sol * 150).toFixed(2) });
+                      }}
+                      placeholder="0.00"
+                      className="input-field text-sm pr-12"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500">SOL</span>
+                  </div>
+                  <span className="text-gray-500">≈</span>
+                  <div className="flex-1 relative">
+                    <input
+                      type="number"
+                      step="1"
+                      min="0"
+                      value={answers["_budget_usd"] || ""}
+                      onChange={(e) => {
+                        const usd = parseFloat(e.target.value) || 0;
+                        setAnswers({ ...answers, _budget_usd: e.target.value, _budget_sol: (usd / 150).toFixed(4) });
+                      }}
+                      placeholder="0.00"
+                      className="input-field text-sm pr-8"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500">$</span>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Leave blank for no budget constraint (full quote)</p>
+              </div>
+
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"
-                  onClick={() => handleClarify(true)}
+                  onClick={() => { setCurrentStep(0); setError(null); }}
                   disabled={busy}
                   className="btn-secondary flex-1"
                 >
-                  Skip All
+                  ← Back
                 </button>
                 <button
                   type="button"
