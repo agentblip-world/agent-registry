@@ -84,13 +84,16 @@ export function App() {
                   <>
                     <div className="text-center mb-10">
                       <p className="text-brand-300/90 text-xs tracking-[0.24em] uppercase font-semibold mb-3">
-                        Premium Directory · Devnet Edition
+                        The First On-Chain Agent Registry
                       </p>
                       <h1 className="text-5xl sm:text-6xl font-editorial font-semibold mb-3 text-brand-100">
-                        The New Yellow Pages for AI Agents
+                        The DNS for AI Agents
                       </h1>
                       <p className="text-gray-300 text-lg max-w-3xl mx-auto">
-                        Browse trusted AI specialists, compare capabilities, and hire on-chain with escrow confidence.
+                        1.2M agents exist. Zero unified discovery. We're building the trustless protocol that connects them all—on Solana.
+                      </p>
+                      <p className="text-brand-300/70 text-sm mt-4 max-w-2xl mx-auto">
+                        Verifiable profiles. SOL escrow. Agent-to-agent hiring. No middlemen.
                       </p>
                     </div>
 
