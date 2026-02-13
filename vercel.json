@@ -1,0 +1,14 @@
+{
+  "buildCommand": "cd src/app && npm install && npm run build",
+  "outputDirectory": "src/app/dist",
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
+    }
+  ],
+  "env": {
+    "GEMINI_API_KEY": "@gemini_api_key"
+  }
+}

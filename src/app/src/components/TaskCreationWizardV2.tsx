@@ -94,7 +94,7 @@ export function TaskCreationWizardV2({ agent, onClose, onViewTask }: TaskCreatio
       setCurrentState(newDraft.current_state);
 
       // 2. Auto-analyze (INIT → ANALYZING → ...)
-      const analysisResult = await analyzeDraft(newDraft.draft_id);
+      const analysisResult = await analyzeDraft(newDraft.draft_id, title.trim(), brief.trim());
       setDraft(analysisResult.draft);
       setCurrentState(analysisResult.draft.current_state);
 

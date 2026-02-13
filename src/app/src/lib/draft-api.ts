@@ -129,7 +129,11 @@ export async function createDraft(params: {
 /**
  * Analyze draft (INIT → ANALYZING → CLARIFY_PENDING | SCOPE_DRAFT)
  */
-export async function analyzeDraft(draftId: string): Promise<{
+export async function analyzeDraft(
+  draftId: string,
+  title: string,
+  brief: string
+): Promise<{
   draft: DraftState;
   extraction?: ExtractionResult;
   questions?: MissingField[];
@@ -137,6 +141,8 @@ export async function analyzeDraft(draftId: string): Promise<{
 }> {
   const res = await fetch(`${API_BASE}/${draftId}/analyze`, {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title, brief }),
   });
 
   if (!res.ok) {
