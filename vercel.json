@@ -7,8 +7,5 @@
       "source": "/api/:path*",
       "destination": "/api/:path*"
     }
-  ],
-  "env": {
-    "GEMINI_API_KEY": "@gemini_api_key"
-  }
+  ]
 }
