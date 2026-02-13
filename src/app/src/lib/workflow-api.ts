@@ -98,6 +98,47 @@ export async function generateScopeFromAI(id: string): Promise<{ scope: TaskScop
   return safePost(`${API_BASE}/${id}/generate-scope`, {}, { scope: createMockScope() });
 }
 
+/**
+ * V2 PIPELINE: Extract structured facts + complexity signals from brief.
+ * Returns extraction with clarifying questions (if any).
+ */
+export async function extractStructuredFacts(id: string): Promise<{
+  extraction: any;
+  workflow: TaskWorkflow;
+}> {
+  return safePost(`${API_BASE}/${id}/extract`, {}, {
+    extraction: createMockExtraction(),
+    workflow: getMockWorkflows()[0],
+  });
+}
+
+/**
+ * V2 PIPELINE: Generate scope + quote from extraction in one call.
+ * Fast path: extraction → deterministic scope + quote.
+ */
+export async function fastQuote(
+  id: string,
+  extraction: any,
+  clarifiedAnswers?: Record<string, string>
+): Promise<{
+  scope: TaskScope;
+  quote: any;
+  workflow: TaskWorkflow;
+}> {
+  return safePost(`${API_BASE}/${id}/fast-quote`, { extraction, clarifiedAnswers }, {
+    scope: createMockScope(),
+    quote: {
+      complexity: 5.5,
+      pricePerPoint: 333333,
+      quotedLamports: 183_333_333,
+      quotedSol: 0.1833,
+      estimatedHours: 11,
+      breakdown: "Complexity: 5.5/10\nTotal: 0.1833 SOL (~$27.50)",
+    },
+    workflow: getMockWorkflows()[0],
+  });
+}
+
 export async function submitScope(id: string, scope: TaskScope): Promise<TaskWorkflow> {
   return safePatch(`${API_BASE}/${id}/scope`, scope, getMockWorkflows()[0]);
 }
@@ -402,5 +443,48 @@ function createMockScope(): TaskScope {
     outOfScope: ["Items not in original brief"],
     assumptions: ["Client provides necessary access", "Standard business hours"],
     acceptanceCriteria: ["All deliverables meet quality standards", "Tests pass", "Documentation complete"],
+  };
+}
+
+function createMockExtraction(): any {
+  return {
+    task_type: "smart-contract",
+    objective: "Build a secure token swap contract on Solana",
+    chain_or_platform: "Solana",
+    inputs: ["Token pair addresses", "Swap parameters"],
+    outputs: ["Deployed smart contract", "Test suite"],
+    deliverables: [
+      "Anchor smart contract with swap, add_liquidity, remove_liquidity instructions",
+      "TypeScript SDK for contract interaction",
+      "Unit and integration test suite"
+    ],
+    success_criteria: [
+      "Swap 1000 tokens in <5 seconds on devnet",
+      "All edge cases covered in tests (>95% coverage)",
+      "No security vulnerabilities in audit"
+    ],
+    constraints: ["Must complete within 2 weeks", "Budget limit: 0.5 SOL"],
+    risks: ["Slippage calculation complexity", "Oracle integration timing"],
+    technical_components: ["Anchor 0.29", "Solana web3.js", "TypeScript", "Mocha"],
+    integration_points: ["Pyth oracle", "Metaplex token metadata"],
+    data_complexity: "moderate",
+    ui_complexity: "none",
+    custom_logic_required: true,
+    estimated_runtime_class: "days",
+    missing_information: [],
+    clarifying_questions: [
+      {
+        question: "Which token standard? (SPL Token or Token-2022)",
+        type: "multiple_choice",
+        options: ["SPL Token", "Token-2022", "Both"],
+        critical: true
+      },
+      {
+        question: "Require admin controls for pausing swaps?",
+        type: "multiple_choice",
+        options: ["Yes", "No"],
+        critical: false
+      }
+    ]
   };
 }
