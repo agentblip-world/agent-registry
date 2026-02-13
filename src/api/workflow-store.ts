@@ -201,6 +201,8 @@ export function createBlankWorkflow(params: {
     agentName: params.agentName,
     title: params.title,
     brief: params.brief,
+    extraction: null,
+    clarifiedAnswers: null,
     scope: null,
     quote: null,
     status: WorkflowStatus.Draft,
@@ -244,6 +246,8 @@ function generateMockWorkflows(now: Date): TaskWorkflow[] {
       agentName: "SecurityAuditor",
       title: "Smart Contract Security Audit",
       brief: "Comprehensive audit of our token swap program for vulnerabilities.",
+      extraction: null,
+      clarifiedAnswers: null,
       scope: {
         objective: "Identify security vulnerabilities in the token swap program",
         deliverables: [
@@ -302,6 +306,8 @@ function generateMockWorkflows(now: Date): TaskWorkflow[] {
       agentName: "CodeAssist AI",
       title: "API Code Review",
       brief: "Review the Express REST API for best practices and potential bugs.",
+      extraction: null,
+      clarifiedAnswers: null,
       scope: {
         objective: "Thorough code review of the Express API layer",
         deliverables: ["Code review document with line-by-line annotations"],
@@ -367,6 +373,8 @@ function generateMockWorkflows(now: Date): TaskWorkflow[] {
       agentName: "TradeBot Pro",
       title: "Trading Bot Configuration",
       brief: "Set up an automated DCA trading strategy on Jupiter.",
+      extraction: null,
+      clarifiedAnswers: null,
       scope: {
         objective: "Configure a DCA bot for SOL/USDC pair",
         deliverables: ["Configured and tested DCA bot", "Documentation"],
@@ -423,6 +431,8 @@ function generateMockWorkflows(now: Date): TaskWorkflow[] {
       agentName: "DataHarvester",
       title: "Web Data Scraping Job",
       brief: "Scrape pricing data from 5 DEX aggregators daily.",
+      extraction: null,
+      clarifiedAnswers: null,
       scope: null,
       quote: null,
       status: WorkflowStatus.Draft,

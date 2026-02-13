@@ -18,8 +18,9 @@ import {
   createBlankWorkflow,
   makeActivity,
 } from "../workflow-store";
-import { generateQuote } from "../workflow-pricing";
-import { generateScope } from "../gemini-scope";
+import { generateQuote, generateQuoteFromExtraction } from "../workflow-pricing";
+import { generateScope, generateDeterministicScope } from "../gemini-scope";
+import { extractStructuredFacts } from "../gemini-extract";
 
 export function workflowRoutes(store: WorkflowStore): Router {
   const router = Router();
@@ -78,6 +79,94 @@ export function workflowRoutes(store: WorkflowStore): Router {
     }
 
     res.json({ ...wf, slaExpiresAt, slaBreached });
+  });
+
+  // ─── Structured Extraction (Stage 2) ────────────────────────────────
+
+  /** POST /api/workflows/:id/extract — extract structured facts from brief (Stage 2) */
+  router.post("/:id/extract", async (req: Request, res: Response) => {
+    const wf = store.get(req.params.id);
+    if (!wf) return res.status(404).json({ error: "Workflow not found" });
+
+    if (wf.status !== WorkflowStatus.Draft) {
+      return res.status(409).json({
+        error: `Can only extract from Draft status (current: "${wf.status}")`,
+      });
+    }
+
+    try {
+      const extraction = await extractStructuredFacts({
+        title: wf.title,
+        brief: wf.brief,
+        agentName: wf.agentName,
+      });
+
+      // Store extraction in workflow
+      const updated = store.update(wf.id, {
+        extraction,
+        activity: [
+          ...wf.activity,
+          makeActivity("system", "Structured extraction completed", "system"),
+        ],
+      });
+
+      res.json({ extraction, workflow: updated });
+    } catch (err: any) {
+      console.error("Extraction error:", err);
+      res.status(500).json({
+        error: "Extraction failed",
+        message: err.message,
+      });
+    }
+  });
+
+  /** POST /api/workflows/:id/fast-quote — Fast pipeline: extraction + clarifications → instant quote (Stage 5) */
+  router.post("/:id/fast-quote", async (req: Request, res: Response) => {
+    const wf = store.get(req.params.id);
+    if (!wf) return res.status(404).json({ error: "Workflow not found" });
+
+    if (wf.status !== WorkflowStatus.Draft) {
+      return res.status(409).json({
+        error: `Can only generate fast quote from Draft status (current: "${wf.status}")`,
+      });
+    }
+
+    const { extraction, clarifiedAnswers } = req.body;
+    if (!extraction) {
+      return res.status(400).json({ error: "extraction field required" });
+    }
+
+    try {
+      // Generate deterministic scope + quote from extraction
+      const scope = await generateDeterministicScope(extraction, clarifiedAnswers);
+      const quote = generateQuoteFromExtraction(extraction);
+
+      // Update workflow with extraction, answers, scope, and quote
+      const updated = store.update(wf.id, {
+        extraction,
+        clarifiedAnswers: clarifiedAnswers || null,
+        scope,
+        quote,
+        status: WorkflowStatus.QuoteReview,
+        activity: [
+          ...wf.activity,
+          makeActivity("scope_approved", "AI-generated scope approved (fast pipeline)", "system"),
+          makeActivity(
+            "quote_generated",
+            `Quote generated: ${quote.quotedSol} SOL (complexity ${quote.complexity}/10)`,
+            "system"
+          ),
+        ],
+      });
+
+      res.json({ scope, quote, workflow: updated });
+    } catch (err: any) {
+      console.error("Fast quote generation error:", err);
+      res.status(500).json({
+        error: "Fast quote generation failed",
+        message: err.message,
+      });
+    }
   });
 
   // ─── Scope ─────────────────────────────────────────────────────────
@@ -149,6 +238,34 @@ export function workflowRoutes(store: WorkflowStore): Router {
     }
   });
 
+  /** POST /api/workflows/:id/generate-scope-from-extraction — Generate scope from confirmed extraction (Stage 4) */
+  router.post("/:id/generate-scope-from-extraction", async (req: Request, res: Response) => {
+    const wf = store.get(req.params.id);
+    if (!wf) return res.status(404).json({ error: "Workflow not found" });
+
+    if (wf.status !== WorkflowStatus.Draft) {
+      return res.status(409).json({
+        error: `Can only generate from Draft status (current: "${wf.status}")`,
+      });
+    }
+
+    const { extraction, clarifiedAnswers } = req.body;
+    if (!extraction) {
+      return res.status(400).json({ error: "extraction field required" });
+    }
+
+    try {
+      const scope = await generateDeterministicScope(extraction, clarifiedAnswers);
+      res.json({ scope });
+    } catch (err: any) {
+      console.error("Deterministic scope generation error:", err);
+      res.status(500).json({
+        error: "Scope generation failed",
+        message: err.message,
+      });
+    }
+  });
+
   /** POST /api/workflows/:id/approve-scope — approve scope, generates quote (ScopeReview → QuoteReview) */
   router.post("/:id/approve-scope", (req: Request, res: Response) => {
     const wf = store.get(req.params.id);
@@ -164,7 +281,10 @@ export function workflowRoutes(store: WorkflowStore): Router {
       return res.status(400).json({ error: "No scope to approve" });
     }
 
-    const quote = generateQuote(wf.scope);
+    // Use extraction-based quote if extraction exists (v2 pipeline), otherwise legacy scope-based quote
+    const quote = wf.extraction
+      ? generateQuoteFromExtraction(wf.extraction)
+      : generateQuote(wf.scope);
 
     const updated = store.update(wf.id, {
       quote,

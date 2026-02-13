@@ -122,6 +122,10 @@ export interface TaskWorkflow {
   title: string;
   brief: string;
 
+  // V2 Pipeline: Structured extraction (optional)
+  extraction: any | null; // StructuredExtraction from gemini-extract.ts
+  clarifiedAnswers: Record<string, string> | null;
+
   // Structured scope
   scope: TaskScope | null;
 

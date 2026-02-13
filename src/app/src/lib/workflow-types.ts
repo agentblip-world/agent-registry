@@ -87,6 +87,8 @@ export interface TaskWorkflow {
   agentName: string;
   title: string;
   brief: string;
+  extraction: any | null; // StructuredExtraction from API
+  clarifiedAnswers: Record<string, string> | null;
   scope: TaskScope | null;
   quote: TaskQuote | null;
   status: WorkflowStatus;

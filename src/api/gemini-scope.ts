@@ -1,12 +1,17 @@
 /**
  * Gemini-powered scope generation from task brief.
+ * 
+ * V2 Pipeline:
+ * - generateDeterministicScope: Generate from confirmed extraction (recommended)
+ * - generateScope: Legacy one-shot generation from brief (fallback)
  */
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { TaskScope } from "./workflow-types";
+import type { StructuredExtraction } from "./gemini-extract";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
-const MODEL_NAME = "gemini-3-flash-preview";
+const MODEL_NAME = "gemini-2.0-flash-exp";
 
 if (!GEMINI_API_KEY) {
   console.warn("⚠️  GEMINI_API_KEY not set — scope generation will fail");
@@ -20,6 +25,10 @@ interface GenerateScopeInput {
   agentName: string;
 }
 
+/**
+ * LEGACY: Generate scope directly from brief (one-shot).
+ * Use generateDeterministicScope for new workflows.
+ */
 export async function generateScope(input: GenerateScopeInput): Promise<TaskScope> {
   const model = genAI.getGenerativeModel({ model: MODEL_NAME });
 
@@ -123,5 +132,164 @@ Example format:
   } catch (err: any) {
     console.error("Gemini scope generation failed:", err.message);
     throw new Error(`Failed to generate scope: ${err.message}`);
+  }
+}
+
+/**
+ * V2 PIPELINE: Generate deterministic scope from confirmed structured extraction.
+ * 
+ * Stage 4 of the optimized pricing pipeline.
+ * Produces specific, measurable deliverables based on extraction facts.
+ * 
+ * @param extraction - Confirmed structured extraction from Stage 2
+ * @param clarifiedAnswers - Optional answers to clarifying questions from Stage 3
+ */
+export async function generateDeterministicScope(
+  extraction: StructuredExtraction,
+  clarifiedAnswers?: Record<string, string>
+): Promise<TaskScope> {
+  const model = genAI.getGenerativeModel({ model: MODEL_NAME });
+
+  const answersText = clarifiedAnswers
+    ? "\n\n**Clarified Information:**\n" +
+      Object.entries(clarifiedAnswers)
+        .map(([q, a]) => `Q: ${q}\nA: ${a}`)
+        .join("\n")
+    : "";
+
+  const prompt = `You are generating a PRECISE technical scope from confirmed structured data.
+
+**EXTRACTED FACTS** (already confirmed by client):
+- Task Type: ${extraction.task_type}
+- Objective: ${extraction.objective}
+- Platform: ${extraction.chain_or_platform}
+- Inputs: ${extraction.inputs.join(", ")}
+- Outputs: ${extraction.outputs.join(", ")}
+- Deliverables: ${extraction.deliverables.join(", ")}
+- Success Criteria: ${extraction.success_criteria.join(", ")}
+- Constraints: ${extraction.constraints.join(", ")}
+- Risks: ${extraction.risks.join(", ")}
+
+**TECHNICAL SIGNALS:**
+- Components: ${extraction.technical_components.join(", ")}
+- Integrations: ${extraction.integration_points.join(", ")}
+- Data Complexity: ${extraction.data_complexity}
+- UI Complexity: ${extraction.ui_complexity}
+- Custom Logic: ${extraction.custom_logic_required ? "Yes" : "No"}
+- Runtime: ${extraction.estimated_runtime_class}${answersText}
+
+**TASK: Generate a precise, measurable scope in JSON format.**
+
+**CRITICAL RULES:**
+1. **NO GENERIC WORDING** - Every deliverable must reference extracted facts
+2. **MEASURABLE CRITERIA** - Acceptance criteria must be testable (e.g., "process 1000 transactions in <5s", not "fast performance")
+3. **SPECIFIC PHASES** - Implementation phases must map to concrete technical components
+4. **CLEAR EXCLUSIONS** - Out-of-scope items must be explicit based on constraints
+
+**OUTPUT FORMAT (valid JSON only, no markdown):**
+{
+  "objective": "<1 factual sentence using extraction.objective>",
+  "deliverables": [
+    "<specific artifact from extraction.deliverables[0]>",
+    "<specific artifact from extraction.deliverables[1]>"
+  ],
+  "implementationPhases": [
+    {
+      "name": "<phase name matching technical_components>",
+      "description": "<what gets built - reference specific components>",
+      "estimatedHours": <number based on runtime_class: minutes=2-4, hours=4-8, days=8-16, weeks=16+>,
+      "deliverables": ["<concrete output 1>", "<concrete output 2>"]
+    }
+  ],
+  "outOfScope": ["<explicit exclusion based on constraints>"],
+  "assumptions": ["<assumption from inputs/constraints>"],
+  "acceptanceCriteria": [
+    "<measurable criterion from success_criteria - must include numbers/thresholds>",
+    "<testable criterion - e.g. 'all unit tests pass', 'deploys to mainnet successfully'>"
+  ]
+}
+
+**EXAMPLES OF GOOD vs BAD:**
+
+❌ BAD (generic):
+{
+  "objective": "Build a high-quality NFT marketplace",
+  "deliverables": ["Smart contract", "Frontend", "Backend"],
+  "acceptanceCriteria": ["Works well", "Fast performance", "Secure"]
+}
+
+✅ GOOD (specific, from extraction):
+{
+  "objective": "Build an NFT marketplace on Solana with minting, listing, and purchase functionality",
+  "deliverables": [
+    "Anchor smart contract with mint_nft, list_item, buy_item instructions",
+    "React UI with Phantom wallet integration and NFT gallery",
+    "Arweave metadata upload service with <5MB per file limit"
+  ],
+  "acceptanceCriteria": [
+    "Mint 1000 NFTs in <30 seconds on devnet",
+    "List items with <100ms latency on UI",
+    "Upload metadata to Arweave with <5MB limit enforced",
+    "All smart contract unit tests pass (>90% coverage)"
+  ]
+}
+
+Generate the scope now. OUTPUT ONLY THE JSON.`;
+
+  try {
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    let text = response.text().trim();
+
+    if (text.startsWith("```json")) {
+      text = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    } else if (text.startsWith("```")) {
+      text = text.replace(/```\n?/g, "").trim();
+    }
+
+    const scope = JSON.parse(text) as TaskScope;
+
+    // Validate structure
+    if (
+      !scope.objective ||
+      !Array.isArray(scope.deliverables) ||
+      !Array.isArray(scope.implementationPhases) ||
+      !Array.isArray(scope.acceptanceCriteria)
+    ) {
+      throw new Error("Invalid scope structure from Gemini");
+    }
+
+    // Validate phases
+    for (const phase of scope.implementationPhases) {
+      if (
+        !phase.name ||
+        !phase.description ||
+        typeof phase.estimatedHours !== 'number' ||
+        !Array.isArray(phase.deliverables)
+      ) {
+        throw new Error("Invalid implementation phase structure");
+      }
+    }
+
+    // Validate specificity: deliverables should not be too generic
+    for (const deliverable of scope.deliverables) {
+      if (deliverable.length < 20) {
+        console.warn(`⚠️  Short deliverable detected: "${deliverable}" - may be too generic`);
+      }
+    }
+
+    // Validate acceptance criteria have numbers/measurements
+    for (const criterion of scope.acceptanceCriteria) {
+      const hasNumber = /\d+/.test(criterion);
+      const hasMeasurement = /<|>|%|ms|seconds|MB|GB|tests|coverage|pass|fail/i.test(criterion);
+      if (!hasNumber && !hasMeasurement) {
+        console.warn(`⚠️  Acceptance criterion may not be measurable: "${criterion}"`);
+      }
+    }
+
+    return scope;
+  } catch (err: any) {
+    console.error("Deterministic scope generation failed:", err.message);
+    throw new Error(`Failed to generate deterministic scope: ${err.message}`);
   }
 }
