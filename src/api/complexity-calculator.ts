@@ -169,7 +169,7 @@ export class ComplexityCalculator {
     return 1; // Default
   }
 
-  private inferSecurityLevel(scope: ScopeStructured, clarification: ClarificationResponse): string {
+  private inferSecurityLevel(scope: ScopeStructured, clarification: ClarificationResponse): "none" | "basic" | "advanced" | "critical" {
     const text = (
       scope.objective +
       " " +
@@ -260,7 +260,7 @@ export class ComplexityCalculator {
     return flags;
   }
 
-  private inferDeadlinePressure(scope: ScopeStructured): string {
+  private inferDeadlinePressure(scope: ScopeStructured): "low" | "medium" | "high" {
     const hoursPerDay = 8;
     const totalHours = scope.estimated_hours_by_phase.reduce(
       (sum, p) => sum + p.estimated_hours,

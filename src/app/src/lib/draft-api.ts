@@ -140,8 +140,18 @@ export async function analyzeDraft(draftId: string): Promise<{
   });
 
   if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.error || "Analysis failed");
+    // Check if response is HTML (API server not running / not deployed)
+    const contentType = res.headers.get("content-type");
+    if (contentType?.includes("text/html")) {
+      throw new Error("API server is not available. The AI-powered analysis feature requires the backend API to be running. Please contact support or try again later.");
+    }
+    
+    try {
+      const err = await res.json();
+      throw new Error(err.error || "Analysis failed");
+    } catch (jsonErr) {
+      throw new Error("Analysis failed - unable to parse server response");
+    }
   }
 
   return res.json();

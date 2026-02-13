@@ -106,7 +106,7 @@ export function workflowRoutes(store: WorkflowStore): Router {
         extraction,
         activity: [
           ...wf.activity,
-          makeActivity("system", "Structured extraction completed", "system"),
+          makeActivity("scope_submitted", "Structured extraction completed", "system"),
         ],
       });
 

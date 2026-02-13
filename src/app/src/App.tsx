@@ -17,6 +17,7 @@ import { SearchBar } from "./components/SearchBar";
 import { AgentGrid } from "./components/AgentGrid";
 import { RegisterForm } from "./components/RegisterForm";
 import { TaskCreationWizardV2 } from "./components/TaskCreationWizardV2";
+import { HireModal } from "./components/HireModal";
 import { TaskList } from "./components/TaskList";
 import { TaskDetail } from "./components/TaskDetail";
 import { Stats } from "./components/Stats";
