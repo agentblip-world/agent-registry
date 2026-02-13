@@ -18,6 +18,8 @@ import { taskRoutes } from "./routes/tasks";
 import { statsRoutes } from "./routes/stats";
 import { workflowRoutes } from "./routes/workflows";
 import { workflowStore } from "./workflow-store";
+import { draftRoutes } from "./routes/drafts";
+import { draftStore } from "./draft-store";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -94,6 +96,7 @@ app.get("/health", (_req: Request, res: Response) => {
 app.use("/api/agents", agentRoutes(indexer));
 app.use("/api/tasks", taskRoutes(connection));
 app.use("/api/workflows", workflowRoutes(workflowStore));
+app.use("/api/drafts", draftRoutes()); // V2 task creation flow
 app.use("/api", statsRoutes(indexer));
 
 // ─── 404 Handler ─────────────────────────────────────────────────────────────
@@ -127,6 +130,17 @@ app.use((_req: Request, res: Response) => {
       "POST /api/workflows/:id/refund",
       "POST /api/workflows/:id/extend-sla",
       "POST /api/workflows/:id/rate",
+      "POST /api/drafts (V2 flow)",
+      "GET /api/drafts",
+      "GET /api/drafts/:id",
+      "POST /api/drafts/:id/analyze",
+      "POST /api/drafts/:id/clarify",
+      "POST /api/drafts/:id/generate-scope",
+      "POST /api/drafts/:id/approve-scope",
+      "POST /api/drafts/:id/edit-scope",
+      "POST /api/drafts/:id/requote",
+      "POST /api/drafts/:id/confirm",
+      "POST /api/drafts/:id/cancel",
     ],
   });
 });
@@ -156,6 +170,15 @@ async function start(): Promise<void> {
   try {
     await indexer.start();
     await workflowStore.init();
+    await draftStore.init();
+
+    // Cleanup expired drafts every hour
+    setInterval(() => {
+      const deleted = draftStore.cleanupExpired();
+      if (deleted > 0) {
+        console.log(`[Cron] Cleaned up ${deleted} expired drafts`);
+      }
+    }, 3600_000); // 1 hour
 
     // Wire indexer task-status-change callback to auto-update workflow
     indexer.onTaskStatusChange((escrowPubkey, onChainStatus) => {
