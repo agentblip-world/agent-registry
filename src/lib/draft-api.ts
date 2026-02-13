@@ -3,7 +3,7 @@
  * State machine-driven task creation flow.
  */
 
-const API_BASE = "/api/drafts";
+const API_BASE = "/api";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -139,28 +139,38 @@ export async function analyzeDraft(
   questions?: MissingField[];
   next_actions: string[];
 }> {
-  const res = await fetch(`${API_BASE}/${draftId}/analyze`, {
+  const res = await fetch(`${API_BASE}/analyze`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ title, brief }),
   });
 
   if (!res.ok) {
-    // Check if response is HTML (API server not running / not deployed)
     const contentType = res.headers.get("content-type");
     if (contentType?.includes("text/html")) {
-      throw new Error("API server is not available. The AI-powered analysis feature requires the backend API to be running. Please contact support or try again later.");
+      throw new Error("API not available");
     }
     
     try {
       const err = await res.json();
       throw new Error(err.error || "Analysis failed");
     } catch (jsonErr) {
-      throw new Error("Analysis failed - unable to parse server response");
+      throw new Error("Analysis failed");
     }
   }
 
-  return res.json();
+  const data = await res.json();
+  
+  return {
+    draft: {
+      draft_id: draftId,
+      current_state: data.questions?.length > 0 ? 'CLARIFY_PENDING' : 'SCOPE_DRAFT',
+      extraction_result: data.extraction,
+    } as DraftState,
+    extraction: data.extraction,
+    questions: data.questions || [],
+    next_actions: data.questions?.length > 0 ? ['clarify'] : ['generate_scope'],
+  };
 }
 
 /**
