@@ -1,7 +1,7 @@
 {
-  "buildCommand": "bash build.sh",
+  "buildCommand": "npm install && cd src/app && npm install && npm run build",
   "outputDirectory": "src/app/dist",
-  "installCommand": "echo 'Skipping root install'",
+  "installCommand": "npm install",
   "functions": {
     "api/**/*.ts": {
       "runtime": "@vercel/node@3.2.21"

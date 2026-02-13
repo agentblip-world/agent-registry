@@ -94,17 +94,24 @@ export function TaskCreationWizardV2({ agent, onClose, onViewTask }: TaskCreatio
       setCurrentState(newDraft.current_state);
 
       // 2. Auto-analyze (INIT → ANALYZING → ...)
-      const analysisResult = await analyzeDraft(newDraft.draft_id, title.trim(), brief.trim());
-      setDraft(analysisResult.draft);
-      setCurrentState(analysisResult.draft.current_state);
+      try {
+        const analysisResult = await analyzeDraft(newDraft.draft_id, title.trim(), brief.trim());
+        setDraft(analysisResult.draft);
+        setCurrentState(analysisResult.draft.current_state);
 
-      if (analysisResult.questions && analysisResult.questions.length > 0) {
-        // Has questions → show clarification step
-        setQuestions(analysisResult.questions);
-        setCurrentStep(1);
-      } else {
-        // No questions → auto-generate scope
-        await handleGenerateScope(analysisResult.draft.draft_id);
+        if (analysisResult.questions && analysisResult.questions.length > 0) {
+          // Has questions → show clarification step
+          setQuestions(analysisResult.questions);
+          setCurrentStep(1);
+        } else {
+          // No questions → auto-generate scope
+          await handleGenerateScope(analysisResult.draft.draft_id);
+        }
+      } catch (apiError: any) {
+        // API not available - skip to simple quote
+        console.warn('AI analysis not available, using simple flow:', apiError);
+        // Skip directly to payment with basic quote
+        setCurrentStep(4);
       }
     } catch (err: any) {
       setError(err.message || "Failed to create task");
