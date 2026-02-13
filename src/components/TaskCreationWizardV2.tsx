@@ -201,8 +201,23 @@ export function TaskCreationWizardV2({ agent, onClose, onViewTask }: TaskCreatio
       setDraft((prev: any) => ({
         ...prev,
         current_state: 'QUOTE_READY',
-        scope_structured: result.scope,
-        pricing_result: result.quote,
+        scope_structured: {
+          ...result.scope,
+          timeline_estimate_days: result.scope.timeline_days || result.scope.timeline_estimate_days || 14,
+          confidence_score: result.quote.confidence || 0.8,
+        },
+        pricing_result: {
+          ...result.quote,
+          total_sol: result.quote.price_sol || result.quote.total_sol || 0,
+          total_usd: result.quote.price_usd || result.quote.total_usd || 0,
+          total_lamports: Math.round((result.quote.price_sol || result.quote.total_sol || 0) * 1e9),
+        },
+        complexity_result: {
+          complexity_score: result.quote.complexity_score || 50,
+          explanation: `Estimated ${result.quote.total_hours || 0} hours of work`,
+        },
+        risk_flags: [],
+        requires_human_review: false,
       }));
       setCurrentState('QUOTE_READY');
       setCurrentStep(2);
@@ -272,7 +287,7 @@ export function TaskCreationWizardV2({ agent, onClose, onViewTask }: TaskCreatio
   }
 
   async function handleFund() {
-    if (!draft?.pricing_result || !publicKey) return;
+    if (!draft || !publicKey) return;
     setError(null);
     resetTx();
 
@@ -280,7 +295,7 @@ export function TaskCreationWizardV2({ agent, onClose, onViewTask }: TaskCreatio
       const agentProfilePubkey = new PublicKey(agent.publicKey);
       const sig = await executeCreateTask({
         taskId: draft.draft_id, // Using draft_id as taskId
-        amountLamports: draft.pricing_result.total_lamports,
+        amountLamports: draft?.pricing_result?.total_lamports || agent.pricingLamports,
         agentProfilePubkey,
       });
 
@@ -627,15 +642,40 @@ export function TaskCreationWizardV2({ agent, onClose, onViewTask }: TaskCreatio
                 </div>
               )}
 
+              {/* Quote Summary */}
+              {draft?.pricing_result && (
+                <div className="glass-card p-4 text-center bg-gradient-to-br from-brand-500/10 to-brand-400/5">
+                  <p className="text-xs text-gray-500 mb-1">Estimated Price</p>
+                  <div className="text-2xl font-bold text-gray-50">
+                    {draft.pricing_result.total_sol} <span className="text-base font-normal text-gray-400">SOL</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">~${draft.pricing_result.total_usd} USD</p>
+                </div>
+              )}
+
+              {draft?.pricing_result?.breakdown && (
+                <details className="text-xs text-gray-500 bg-gray-900/50 p-3 rounded-xl">
+                  <summary className="font-semibold text-gray-400 cursor-pointer">Breakdown</summary>
+                  <div className="mt-2 space-y-1">
+                    {(Array.isArray(draft.pricing_result.breakdown) ? draft.pricing_result.breakdown : []).map((item: any, i: number) => (
+                      <div key={i} className="flex justify-between">
+                        <span>{item.item} ({item.hours}h)</span>
+                        <span>{item.cost_sol} SOL</span>
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              )}
+
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setCurrentStep(1)} className="btn-secondary flex-1">← Back</button>
                 <button
                   type="button"
-                  onClick={handleApproveScope}
+                  onClick={() => setCurrentStep(4)}
                   disabled={busy}
                   className="btn-primary flex-1"
                 >
-                  {busy ? "Calculating..." : "Get Quote →"}
+                  Accept & Pay →
                 </button>
               </div>
             </div>
@@ -713,12 +753,12 @@ export function TaskCreationWizardV2({ agent, onClose, onViewTask }: TaskCreatio
           )}
 
           {/* Step 4: Payment */}
-          {currentStep === 4 && draft?.pricing_result && (
+          {currentStep === 4 && (draft?.pricing_result || true) && (
             <div className="p-5 space-y-4">
               <div className="glass-card p-4 text-center">
                 <p className="text-xs text-gray-500 mb-1">Amount to Escrow</p>
                 <div className="text-3xl font-bold text-gray-50">
-                  {draft.pricing_result.total_sol} <span className="text-base font-normal text-gray-400">SOL</span>
+                  {draft?.pricing_result?.total_sol || lamportsToSol(agent.pricingLamports)} <span className="text-base font-normal text-gray-400">SOL</span>
                 </div>
               </div>
 
@@ -742,7 +782,7 @@ export function TaskCreationWizardV2({ agent, onClose, onViewTask }: TaskCreatio
                   disabled={txLoading}
                   className="btn-primary flex-1"
                 >
-                  {txLoading ? "Confirming..." : `Fund Escrow (${draft.pricing_result.total_sol} SOL)`}
+                  {txLoading ? "Confirming..." : `Fund Escrow (${draft?.pricing_result?.total_sol || lamportsToSol(agent.pricingLamports)} SOL)`}
                 </button>
               </div>
             </div>
