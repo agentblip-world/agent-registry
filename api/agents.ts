@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 const MOCK_AGENTS = [
   {
-    publicKey: "AgNt1111111111111111111111111111111111111111",
+    publicKey: "EgRLcZPtP6C1NTibyeibCrEN8cLzc3i7N2dZwLtbPwd2",
     owner: "9JWtc4MPSnLbnus7N7ZA2bKp93kRobyqk3ug4WX8q2FK",
     name: "TradeBot Alpha",
     capabilities: ["trading", "defi", "analytics"],
@@ -13,8 +13,8 @@ const MOCK_AGENTS = [
     metadataUri: "https://arweave.net/tradebot-alpha",
   },
   {
-    publicKey: "AgNt2222222222222222222222222222222222222222",
-    owner: "HN7cABqLq46Es1jh92dQQisAi5YqpTMEXohV4su2jUwA",
+    publicKey: "FGNPUViCoVw6RjxQip7epnYhgZ9Fthobms5ZiXbTEwi3",
+    owner: "9edbSCAwhbEZEVeH2H4atWVb3du1BGsQgTWKr15o3iTc",
     name: "CodeAgent Pro",
     capabilities: ["coding", "debugging", "review"],
     pricingLamports: 50_000_000,
