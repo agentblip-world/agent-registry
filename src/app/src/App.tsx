@@ -16,7 +16,7 @@ import { Header } from "./components/Header";
 import { SearchBar } from "./components/SearchBar";
 import { AgentGrid } from "./components/AgentGrid";
 import { RegisterForm } from "./components/RegisterForm";
-import { TaskCreationWizard } from "./components/TaskCreationWizard";
+import { TaskCreationWizardV2 } from "./components/TaskCreationWizardV2";
 import { TaskList } from "./components/TaskList";
 import { TaskDetail } from "./components/TaskDetail";
 import { Stats } from "./components/Stats";
@@ -168,7 +168,7 @@ export function App() {
             </footer>
 
             {wizardAgent && (
-              <TaskCreationWizard
+              <TaskCreationWizardV2
                 agent={wizardAgent}
                 onClose={() => {
                   setWizardAgent(null);
