@@ -46,6 +46,7 @@ export function TaskCreationWizardV2({ agent, onClose, onViewTask }: TaskCreatio
 
   const [currentStep, setCurrentStep] = useState(0);
   const [busy, setBusy] = useState(false);
+  const [busyPhase, setBusyPhase] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   // Draft state
@@ -78,10 +79,12 @@ export function TaskCreationWizardV2({ agent, onClose, onViewTask }: TaskCreatio
   async function handleCreateDraft() {
     if (!publicKey) return;
     setBusy(true);
+    setBusyPhase("Creating draft...");
     setError(null);
 
     try {
       // 1. Create draft (INIT)
+      setBusyPhase("Setting up your task...");
       const { draft: newDraft } = await createDraft({
         clientWallet: publicKey.toBase58(),
         agentPubkey: agent.publicKey,
@@ -94,8 +97,24 @@ export function TaskCreationWizardV2({ agent, onClose, onViewTask }: TaskCreatio
       setCurrentState(newDraft.current_state);
 
       // 2. Auto-analyze (INIT → ANALYZING → ...)
+      setBusyPhase("🧠 AI is reading your brief...");
       try {
+        // Cycle through fun messages while waiting
+        const phaseTimer = setInterval(() => {
+          const phases = [
+            "🧠 AI is reading your brief...",
+            "🔍 Identifying requirements...",
+            "⚡ Extracting technical details...",
+            "📋 Generating smart questions...",
+            "✨ Almost there...",
+          ];
+          setBusyPhase(prev => {
+            const idx = phases.indexOf(prev);
+            return phases[(idx + 1) % phases.length];
+          });
+        }, 2500);
         const analysisResult = await analyzeDraft(newDraft.draft_id, title.trim(), brief.trim());
+        clearInterval(phaseTimer);
         setDraft(analysisResult.draft);
         setCurrentState(analysisResult.draft.current_state);
 
@@ -123,7 +142,24 @@ export function TaskCreationWizardV2({ agent, onClose, onViewTask }: TaskCreatio
   async function handleClarify(skipAll: boolean = false) {
     if (!draft) return;
     setBusy(true);
+    setBusyPhase("📊 Generating your scope...");
     setError(null);
+
+    // Cycle through messages while Gemini works
+    const phaseTimer = setInterval(() => {
+      const phases = [
+        "📊 Generating your scope...",
+        "🎯 Matching deliverables to budget...",
+        "⏱️ Estimating timeline...",
+        "💰 Calculating pricing breakdown...",
+        "🔧 Building implementation phases...",
+        "✨ Finalizing your quote...",
+      ];
+      setBusyPhase(prev => {
+        const idx = phases.indexOf(prev);
+        return phases[(idx + 1) % phases.length];
+      });
+    }, 2000);
 
     try {
       const skippedKeys = skipAll
@@ -173,7 +209,9 @@ export function TaskCreationWizardV2({ agent, onClose, onViewTask }: TaskCreatio
     } catch (err: any) {
       setError(err.message || "Failed to submit clarifications");
     } finally {
+      clearInterval(phaseTimer);
       setBusy(false);
+      setBusyPhase("");
     }
   }
 
@@ -315,7 +353,25 @@ export function TaskCreationWizardV2({ agent, onClose, onViewTask }: TaskCreatio
       onClick={handleOverlayClick}
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
     >
-      <div className="glass-card max-w-xl w-full p-0 overflow-hidden animate-in max-h-[90vh] flex flex-col">
+      <div className="glass-card max-w-xl w-full p-0 overflow-hidden animate-in max-h-[90vh] flex flex-col relative">
+        {/* AI Loading Overlay */}
+        {busy && busyPhase && (
+          <div className="absolute inset-0 z-20 bg-gray-950/80 backdrop-blur-sm flex flex-col items-center justify-center gap-4">
+            <div className="relative">
+              <div className="w-16 h-16 rounded-full border-4 border-brand-500/20 border-t-brand-400 animate-spin" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-2xl">🤖</span>
+              </div>
+            </div>
+            <p className="text-brand-300 font-medium text-sm animate-pulse">{busyPhase}</p>
+            <div className="flex gap-1">
+              <div className="w-2 h-2 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: '0ms' }} />
+              <div className="w-2 h-2 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+              <div className="w-2 h-2 rounded-full bg-brand-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-800/50 flex-shrink-0">
           <h2 className="text-base font-bold text-gray-50">Create Task (V2)</h2>
