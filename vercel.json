@@ -1,6 +1,7 @@
 {
-  "buildCommand": "cd src/app && npm install && npm run build",
-  "outputDirectory": "src/app/dist",
-  "installCommand": "cd src/app && npm install",
-  "devCommand": "cd src/app && npm run dev"
+  "functions": {
+    "api/**/*.ts": {
+      "runtime": "@vercel/node"
+    }
+  }
 }
