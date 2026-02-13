@@ -112,13 +112,17 @@ export async function createDraft(params: {
   title: string;
   brief: string;
 }): Promise<{ draft: DraftState; next_actions: string[] }> {
-  const res = await fetch(API_BASE, {
+  const res = await fetch(`${API_BASE}/drafts`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(params),
   });
 
   if (!res.ok) {
+    const contentType = res.headers.get("content-type");
+    if (contentType?.includes("text/html")) {
+      throw new Error("API not available");
+    }
     const err = await res.json();
     throw new Error(err.error || "Failed to create draft");
   }
